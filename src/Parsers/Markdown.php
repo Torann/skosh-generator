@@ -12,15 +12,6 @@ class Markdown
      */
     public static function parse($content)
     {
-        // Leading comments breat markdown
-        $content = preg_replace('/<!--/s', '&lt;!--', $content);
-
-        // Parse Markdown
-        $content = ParsedownExtra::instance()->text($content);
-
-        // Leading comments breat markdown
-        $content = preg_replace('/&lt;!--/s', '<!--', $content);
-
-        return $content;
+        return ParsedownExtra::instance()->text($content);
     }
 }

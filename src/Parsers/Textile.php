@@ -13,6 +13,7 @@ class Textile
     public static function parse($content)
     {
         $parser = new Parser();
+
         return $parser->textileThis($content);
     }
 }
