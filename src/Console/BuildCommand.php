@@ -31,7 +31,7 @@ class BuildCommand extends Command
             ->setName('build')
             ->setDescription('Renders the web site')
             ->addOption('env', 'e', InputOption::VALUE_OPTIONAL, 'Which environment to build for.', 'local')
-            ->addOption('part', 'p', InputOption::VALUE_OPTIONAL, 'Which part of the site to build pages, assets, or all.', 'all');
+            ->addOption('skip', 's', InputOption::VALUE_OPTIONAL, 'Which part of the site to skip [config, static, pages, or assets]');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -44,7 +44,7 @@ class BuildCommand extends Command
 
         // Get arguments
         $env  = $app->getEnvironment();
-        $part = $input->getOption('part');
+        $skip = $input->getOption('skip');
 
         $isProduction = ($env === 'production');
 
@@ -57,25 +57,25 @@ class BuildCommand extends Command
         }
 
         // Remove all built files
-        if ($isProduction || in_array($part, array('all'))) {
+        if (! $skip) {
             $output->writeln("<comment>Cleaning target...</comment>");
             $this->builder->cleanTarget();
         }
 
         // Create server configuration
-        if ($isProduction || in_array($part, array('all', 'config'))) {
+        if ($skip !== 'config') {
             $output->writeln("<comment>Creating server configuration...</comment>");
             $this->builder->createServerConfig();
         }
 
         // Copy static files
-        if ($isProduction || in_array($part, array('all', 'static'))) {
+        if ($skip !== 'static') {
             $output->writeln("<comment>Copying statics...</comment>");
             $this->builder->copyStaticFiles();
         }
 
         // Build assets
-        if ($isProduction || in_array($part, array('all', 'assets')))
+        if ($skip !== 'assets')
         {
             $output->writeln("<comment>Building assets (gulp)...</comment>\n");
             $output->writeln(shell_exec("gulp --target={$this->target} --env={$env}"));
@@ -85,8 +85,7 @@ class BuildCommand extends Command
         }
 
         // Build pages
-        if ($isProduction || in_array($part, array('all', 'pages')))
-        {
+        if ($skip !== 'pages') {
             $output->writeln("<comment>Building pages...</comment>");
             $this->builder->build();
         }
