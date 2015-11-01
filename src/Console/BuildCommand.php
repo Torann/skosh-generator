@@ -31,6 +31,7 @@ class BuildCommand extends Command
             ->setName('build')
             ->setDescription('Renders the web site')
             ->addOption('env', 'e', InputOption::VALUE_OPTIONAL, 'Which environment to build for.', 'local')
+            ->addOption('part', 'p', InputOption::VALUE_OPTIONAL, 'Which part of the site to build [config, static, pages, or assets]', 'all')
             ->addOption('skip', 's', InputOption::VALUE_OPTIONAL, 'Which part of the site to skip [config, static, pages, or assets]');
     }
 
@@ -44,6 +45,7 @@ class BuildCommand extends Command
 
         // Get arguments
         $env  = $app->getEnvironment();
+        $part = $input->getOption('part');
         $skip = $input->getOption('skip');
 
         $isProduction = ($env === 'production');
@@ -57,25 +59,25 @@ class BuildCommand extends Command
         }
 
         // Remove all built files
-        if (! $skip) {
+        if (! $skip && $part === 'all') {
             $output->writeln("<comment>Cleaning target...</comment>");
             $this->builder->cleanTarget();
         }
 
         // Create server configuration
-        if ($skip !== 'config') {
+        if ($skip !== 'config' && in_array($part, ['all', 'config'])) {
             $output->writeln("<comment>Creating server configuration...</comment>");
             $this->builder->createServerConfig();
         }
 
         // Copy static files
-        if ($skip !== 'static') {
+        if ($skip !== 'static' && in_array($part, ['all', 'static'])) {
             $output->writeln("<comment>Copying statics...</comment>");
             $this->builder->copyStaticFiles();
         }
 
         // Build assets
-        if ($skip !== 'assets')
+        if ($skip !== 'assets' && in_array($part, ['all', 'assets']))
         {
             $output->writeln("<comment>Building assets (gulp)...</comment>\n");
             $output->writeln(shell_exec("gulp --target={$this->target} --env={$env}"));
@@ -85,7 +87,7 @@ class BuildCommand extends Command
         }
 
         // Build pages
-        if ($skip !== 'pages') {
+        if ($skip !== 'pages' && in_array($part, ['all', 'pages'])) {
             $output->writeln("<comment>Building pages...</comment>");
             $this->builder->build();
         }

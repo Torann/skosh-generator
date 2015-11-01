@@ -126,6 +126,7 @@ class Application extends BaseApplication
         $defaultCommands[] = new ServeCommand();
         $defaultCommands[] = new OptimizeCommand();
         $defaultCommands[] = new PublishCommand();
+        $defaultCommands[] = new WatchCommand();
 
         return $defaultCommands;
     }
