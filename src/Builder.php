@@ -303,19 +303,15 @@ class Builder
      */
     public function cleanTarget()
     {
-        $fs = new Filesystem();
+        $filesystem = new Filesystem();
 
         // Get files and directories to remove
         $files = array_diff(scandir($this->target), array('.', '..'));
+        $files = preg_grep('/[^.gitignore]/i', $files);
 
-        foreach ($files as $file)
-        {
-            try {
-                $fs->remove("$this->target/$file");
-            }
-            catch (IOExceptionInterface $e) {
-                echo "An error occurred while creating your directory at ".$e->getPath();
-            }
+        // Remove files
+        foreach ($files as $file) {
+            $filesystem->remove("$this->target/$file");
         }
     }
 
