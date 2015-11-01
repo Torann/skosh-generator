@@ -251,7 +251,7 @@ class Builder
      */
     public function copyStaticFiles()
     {
-        $exclude = ['less', 'js', 'css'];
+        $exclude = ['js', 'javascripts', 'stylesheets', 'less', 'sass'];
 
         // Include the excludes from the config
         $exclude = array_merge($exclude, (array)$this->app->getSetting('exclude', []));
