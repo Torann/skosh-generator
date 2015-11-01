@@ -1,11 +1,11 @@
-<?php namespace Skosh;
+<?php
+
+namespace Skosh;
 
 use DateTime;
-
-use Skosh\Console\Application;
-
-use Skosh\Content\Content;
 use Skosh\Content\Page;
+use Skosh\Content\Content;
+use Skosh\Console\Application;
 
 class Site
 {
@@ -64,11 +64,13 @@ class Site
         if ($content instanceof Page) {
             $this->addPage($content);
         }
-        else if ($content) {
-            $this->addChild($content);
-        }
         else {
-            throw new \Exception("Unknown content type.");
+            if ($content) {
+                $this->addChild($content);
+            }
+            else {
+                throw new \Exception("Unknown content type.");
+            }
         }
     }
 
@@ -82,7 +84,7 @@ class Site
         $this->pages[$child->id] = $child;
 
         // Group by category
-        if (! isset($this->categories[$child->category])) {
+        if (!isset($this->categories[$child->category])) {
             $this->categories[$child->category] = [];
         }
 

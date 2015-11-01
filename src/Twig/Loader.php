@@ -1,4 +1,6 @@
-<?php namespace Skosh\Twig;
+<?php
+
+namespace Skosh\Twig;
 
 use Skosh\Site;
 
@@ -26,21 +28,20 @@ class Loader implements \Twig_LoaderInterface, \Twig_ExistsLoaderInterface
             throw new \Exception("Cannot find content \"$name\".");
         }
 
-        if (! $content->template) {
+        if (!$content->template) {
             throw new \Exception("Content does not have a template");
         }
 
-        if ($content->template !== 'none')
-        {
+        if ($content->template !== 'none') {
             $block = 'content';
 
             // Custom Block?
-            if (strpos($content->template,'::') !== false) {
+            if (strpos($content->template, '::') !== false) {
                 list($content->template, $block) = explode('::', $content->template);
             }
 
             // Create template content
-            $template =  "{% extends \"$content->template\" %}";
+            $template = "{% extends \"$content->template\" %}";
             $template .= "{% block $block %}";
             $template .= $content->content;
             $template .= "{% endblock %}";

@@ -1,4 +1,6 @@
-<?php namespace Skosh;
+<?php
+
+namespace Skosh;
 
 class AssetManifest
 {
@@ -14,7 +16,7 @@ class AssetManifest
      *
      * @var array
      */
-    public $manifest = array();
+    public $manifest = [];
 
     /**
      * Initializer.
@@ -27,7 +29,7 @@ class AssetManifest
         $this->load();
 
         // Register event
-        Event::bind('assets.built', array($this, 'load'));
+        Event::bind('assets.built', [$this, 'load']);
     }
 
     /**
@@ -35,7 +37,7 @@ class AssetManifest
      */
     public function load()
     {
-        $file = getcwd().DIRECTORY_SEPARATOR.'rev-manifest.json';
+        $file = getcwd() . DIRECTORY_SEPARATOR . 'rev-manifest.json';
 
         if (file_exists($file)) {
             $this->manifest = json_decode(file_get_contents($file), true);

@@ -1,16 +1,15 @@
-<?php namespace Skosh\Console;
+<?php
+
+namespace Skosh\Console;
 
 use Skosh\Config;
-
-use Symfony\Component\Console\Application as BaseApplication;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-    const VERSION      = '0.1';
+    const VERSION = '0.1';
 
     /**
      * Site config.
@@ -47,13 +46,15 @@ class Application extends BaseApplication
         $name = $this->getCommandName($input);
 
         // Did the user enter an environment option?
-        if (true === $input->hasParameterOption(array('--env', '-e'))) {
-            $this->environment = $input->getParameterOption(array('--env', '-e'));
+        if (true === $input->hasParameterOption(['--env', '-e'])) {
+            $this->environment = $input->getParameterOption(['--env', '-e']);
         }
 
         // Publishing must be in an environment higher than local
-        else if ($name === 'publish') {
-            $this->environment = 'production';
+        else {
+            if ($name === 'publish') {
+                $this->environment = 'production';
+            }
         }
 
         // Initializing a new project is a special occasion

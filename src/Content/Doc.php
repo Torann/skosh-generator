@@ -1,7 +1,9 @@
-<?php namespace Skosh\Content;
+<?php
 
-use Symfony\Component\Finder\SplFileInfo;
+namespace Skosh\Content;
+
 use Skosh\Builder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Doc extends Content
 {
@@ -38,7 +40,7 @@ class Doc extends Content
      */
     protected function getCleanPath($path)
     {
-        return preg_replace_callback("/['|\"]?(_doc?)['|\"]?/s", function() {
+        return preg_replace_callback("/['|\"]?(_doc?)['|\"]?/s", function () {
             return 'doc';
         }, $path);
     }

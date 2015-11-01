@@ -1,4 +1,6 @@
-<?php namespace Skosh\Twig\Extensions;
+<?php
+
+namespace Skosh\Twig\Extensions;
 
 use Skosh\Content\Content;
 
@@ -9,25 +11,25 @@ class SocialShare
      *
      * @var array
      */
-    public static $templates = array(
-        'twitter'       => 'https://twitter.com/intent/tweet?url={url}&text={text}',
-        'pinterest'     => 'https://www.pinterest.com/pin/create/button/?media={image}&url={url}&description={text}',
-        'facebook'      => 'https://www.facebook.com/sharer.php?s=100&p[title]={title}&p[summary]={text}&p[url]={url}&p[images][0]={image}',
-        'linkedin'      => 'https://www.linkedin.com/shareArticle?mini=true&url={url}&title={title}&summary={text}&source={url}',
-        'tumblr'        => 'https://tumblr.com/share?s=&v=3&t={title}&u={url}',
-        'blogger'       => 'https://blogger.com/blog-this.g?t={text}&n={title}&u={url}',
-        'delicious'     => 'https://delicious.com/save?url={url}&title={title}',
-        'google'        => 'https://plus.google.com/share?url={url}',
-        'digg'          => 'https://digg.com/submit?url={url}&title={title}',
-        'reddit'        => 'http://reddit.com/submit?url={url}&title={title}',
-        'stumbleupon'   => 'https://www.stumbleupon.com/submit?url={url}&title={title}',
-    );
+    public static $templates = [
+        'twitter' => 'https://twitter.com/intent/tweet?url={url}&text={text}',
+        'pinterest' => 'https://www.pinterest.com/pin/create/button/?media={image}&url={url}&description={text}',
+        'facebook' => 'https://www.facebook.com/sharer.php?s=100&p[title]={title}&p[summary]={text}&p[url]={url}&p[images][0]={image}',
+        'linkedin' => 'https://www.linkedin.com/shareArticle?mini=true&url={url}&title={title}&summary={text}&source={url}',
+        'tumblr' => 'https://tumblr.com/share?s=&v=3&t={title}&u={url}',
+        'blogger' => 'https://blogger.com/blog-this.g?t={text}&n={title}&u={url}',
+        'delicious' => 'https://delicious.com/save?url={url}&title={title}',
+        'google' => 'https://plus.google.com/share?url={url}',
+        'digg' => 'https://digg.com/submit?url={url}&title={title}',
+        'reddit' => 'http://reddit.com/submit?url={url}&title={title}',
+        'stumbleupon' => 'https://www.stumbleupon.com/submit?url={url}&title={title}',
+    ];
 
     /**
      * Generate social network link.
      *
-     * @param  string   $network
-     * @param  Content  $page
+     * @param  string  $network
+     * @param  Content $page
      * @return string
      */
     public static function generate($network, Content $page)
@@ -36,17 +38,17 @@ class SocialShare
         $text = self::truncate($page->description, 137);
 
         // Replace template with values
-        return str_replace(array(
+        return str_replace([
             '{url}',
             '{title}',
             '{text}',
             '{image}'
-        ), array(
+        ], [
             urlencode($page->full_url),
             urlencode($page->title),
             urlencode($text),
             urlencode($page->get('image'))
-        ), self::$templates[$network]);
+        ], self::$templates[$network]);
     }
 
     /**

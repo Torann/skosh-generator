@@ -1,4 +1,6 @@
-<?php namespace Skosh\Parsers;
+<?php
+
+namespace Skosh\Parsers;
 
 use Netcarver\Textile\Parser;
 

@@ -1,4 +1,6 @@
-<?php namespace Skosh\Console;
+<?php
+
+namespace Skosh\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,8 +17,9 @@ class InitCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Don't initialize if already done
-        if(is_dir(BASE_PATH . DIRECTORY_SEPARATOR . 'node_modules')) {
+        if (is_dir(BASE_PATH . DIRECTORY_SEPARATOR . 'node_modules')) {
             $output->writeln("<error>Site already initialized.</error>");
+
             return;
         }
 

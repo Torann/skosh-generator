@@ -1,14 +1,14 @@
-<?php namespace Skosh\Console;
+<?php
+
+namespace Skosh\Console;
 
 use Skosh\Config;
-
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Console\Input\ArrayInput;
 
 class PublishCommand extends Command
 {
@@ -24,10 +24,10 @@ class PublishCommand extends Command
      *
      * @var array
      */
-    public $servers = array(
+    public $servers = [
         'ssh' => 'rsync',
         'ftp' => 'lftp'
-    );
+    ];
 
     protected function configure()
     {
@@ -59,10 +59,10 @@ class PublishCommand extends Command
         // Create production build command
         $command = $app->find('build');
 
-        $buildInput = new ArrayInput(array(
-            'command'  => 'build',
-            '--env'    => 'production'
-        ));
+        $buildInput = new ArrayInput([
+            'command' => 'build',
+            '--env' => 'production'
+        ]);
 
         // Run production build command
         $command->run($buildInput, $output);
@@ -85,12 +85,11 @@ class PublishCommand extends Command
      */
     protected function validateServer($server)
     {
-        if (in_array($server, array_keys($this->servers)))
-        {
+        if (in_array($server, array_keys($this->servers))) {
             // Get server options
             $options = $this->config->get($server);
 
-            if (! $options || $options['host'] === 'yoursite') {
+            if (!$options || $options['host'] === 'yoursite') {
                 throw new \Exception("Remote server \"{$server}\" not setup in remote.yml.");
             }
 
@@ -107,8 +106,8 @@ class PublishCommand extends Command
     /**
      * Publish using SSH.
      *
-     * @param  OutputInterface  $output
-     * @param  string           $target
+     * @param  OutputInterface $output
+     * @param  string          $target
      * @return bool
      * @throws \Exception
      */
@@ -118,7 +117,7 @@ class PublishCommand extends Command
         $config = $this->config->get('ssh');
 
         // Ensure there isn't a leading slash
-        $remote_dir = ltrim($config['remote_dir'],'/');
+        $remote_dir = ltrim($config['remote_dir'], '/');
 
         // Shell command
         $output->writeln(shell_exec("rsync -avze 'ssh -p {$config['port']}' {$target} {$config['user']}@{$config['host']}:{$remote_dir} --exclude .DS_Store --exclude downloads.json --exclude cache/"));
@@ -129,8 +128,8 @@ class PublishCommand extends Command
     /**
      * Publish using FTP.
      *
-     * @param  OutputInterface  $output
-     * @param  string           $target
+     * @param  OutputInterface $output
+     * @param  string          $target
      * @return bool
      * @throws \Exception
      */
@@ -140,7 +139,7 @@ class PublishCommand extends Command
         $config = $this->config->get('ftp');
 
         // Ensure there isn't a leading slash
-        $remote_dir = ltrim($config['remote_dir'],'/');
+        $remote_dir = ltrim($config['remote_dir'], '/');
 
         // Shell command
         $output->writeln(shell_exec("lftp -c \"set ftp:list-options -a;

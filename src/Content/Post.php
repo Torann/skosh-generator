@@ -1,7 +1,9 @@
-<?php namespace Skosh\Content;
+<?php
 
-use Symfony\Component\Finder\SplFileInfo;
+namespace Skosh\Content;
+
 use Skosh\Builder;
+use Symfony\Component\Finder\SplFileInfo;
 
 class Post extends Content
 {
@@ -38,17 +40,16 @@ class Post extends Content
         $this->author = $this->get('author', $this->author);
 
         // Set Images
-        if ($this->has('image'))
-        {
+        if ($this->has('image')) {
             $fileinfo = pathinfo($this->get('image'));
 
             $template = "{$fileinfo['dirname']}/{$fileinfo['filename']}-%SIZE%.{$fileinfo['extension']}";
 
-            $this->image = array(
-                'full'   => $this->get('image'),
+            $this->image = [
+                'full' => $this->get('image'),
                 'medium' => str_replace('%SIZE%', 'medium', $template),
-                'thumb'  => str_replace('%SIZE%', 'thumb', $template)
-            );
+                'thumb' => str_replace('%SIZE%', 'thumb', $template)
+            ];
         }
 
         // Remove content HTML comments

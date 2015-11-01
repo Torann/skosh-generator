@@ -1,4 +1,6 @@
-<?php namespace Skosh;
+<?php
+
+namespace Skosh;
 
 class Event
 {
@@ -7,14 +9,14 @@ class Event
      *
      * @var array
      */
-    protected static $events = array();
+    protected static $events = [];
 
     /**
      * The events that have been fired.
      *
      * @var array
      */
-    protected static $fired = array();
+    protected static $fired = [];
 
     /**
      * Register a handler (a callback function) for an event.
@@ -26,34 +28,33 @@ class Event
      * of times the event is fired, call the method with a third
      * argument of TRUE.
      *
-     * @param  string  $name The name of the event.
-     * @param  mixed   $callback The callback function.
-     * @param  bool    $once Only fire the callback once.
+     * @param  string $name     The name of the event.
+     * @param  mixed  $callback The callback function.
+     * @param  bool   $once     Only fire the callback once.
      * @return void
      */
-    public static function bind($name, $callback, $once = FALSE)
+    public static function bind($name, $callback, $once = false)
     {
-        static::$events[$name][] = array(
+        static::$events[$name][] = [
             $once ? 'once' : 'always' => $callback
-        );
+        ];
     }
 
     /**
      * Identical to the append method, except the event handler is
      * added to the start of the queue.
      *
-     * @param  string  $name The name of the event.
-     * @param  mixed   $callback The callback function.
-     * @param  bool    $once Only fire the callback once.
+     * @param  string $name     The name of the event.
+     * @param  mixed  $callback The callback function.
+     * @param  bool   $once     Only fire the callback once.
      * @return void
      */
-    public static function insert($name, $callback, $once = FALSE)
+    public static function insert($name, $callback, $once = false)
     {
-        if (static::bound($name))
-        {
+        if (static::bound($name)) {
             array_unshift(
                 static::$events[$name],
-                array($once ? 'once' : 'always' => $callback)
+                [$once ? 'once' : 'always' => $callback]
             );
         }
         else {
@@ -74,18 +75,16 @@ class Event
      * @param  bool   $stop Return after the first non-empty response.
      * @return mixed
      */
-    public static function fire($name, $data = array(), $stop = FALSE)
+    public static function fire($name, $data = [], $stop = false)
     {
-        if (static::bound($name))
-        {
-            static::$fired[$name] = TRUE;
+        if (static::bound($name)) {
+            static::$fired[$name] = true;
 
-            foreach (static::$events[$name] as $key => $value)
-            {
+            foreach (static::$events[$name] as $key => $value) {
                 list($type, $callback) = each($value);
 
                 $responses[] = $response =
-                    call_user_func_array($callback, (array) $data);
+                    call_user_func_array($callback, (array)$data);
 
                 if ($type == 'once') {
                     unset(static::$events[$name][$key]);
@@ -97,7 +96,7 @@ class Event
             }
         }
 
-        return isset($responses) ? $responses : NULL;
+        return isset($responses) ? $responses : null;
     }
 
     /**
@@ -116,12 +115,12 @@ class Event
      *
      * To remove the event handlers for a specific event, pass the
      * name of the event to the method. To remove all event handlers,
-     * call the method without any arguments. 
+     * call the method without any arguments.
      *
      * @param  string $name The name of the event.
      * @return void
      */
-    public static function unbind($name = NULL)
+    public static function unbind($name = null)
     {
         static::clear(static::$events, $name);
     }
@@ -135,7 +134,7 @@ class Event
      * @param  string $name The name of the event.
      * @return void
      */
-    public static function reset($name = NULL)
+    public static function reset($name = null)
     {
         static::clear(static::$fired, $name);
     }
@@ -155,13 +154,13 @@ class Event
      * Remove an element from an array, or clear an entire array.
      *
      * @param  array  $array The array.
-     * @param  string $name The name of the element to clear.
+     * @param  string $name  The name of the element to clear.
      * @return void
      */
     protected static function clear(&$array, $name)
     {
-        if ($name == NULL) {
-            $array = array();
+        if ($name == null) {
+            $array = [];
         }
         else {
             unset($array[$name]);

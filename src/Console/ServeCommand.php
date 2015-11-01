@@ -1,11 +1,12 @@
-<?php namespace Skosh\Console;
+<?php
+
+namespace Skosh\Console;
 
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ServeCommand extends Command
 {
@@ -32,15 +33,14 @@ class ServeCommand extends Command
         $host = $input->getOption('host');
 
         // Was the build command ran?
-        if (! file_exists($target . DIRECTORY_SEPARATOR . 'index.html') )
-        {
+        if (!file_exists($target . DIRECTORY_SEPARATOR . 'index.html')) {
             // Create production build command
             $command = $app->find('build');
 
-            $buildInput = new ArrayInput(array(
-                'command'  => 'build',
-                '--env'    => 'local'
-            ));
+            $buildInput = new ArrayInput([
+                'command' => 'build',
+                '--env' => 'local'
+            ]);
 
             // Run production build command
             $command->run($buildInput, $output);
@@ -48,9 +48,9 @@ class ServeCommand extends Command
 
         $fp = popen("gulp serve --target={$target} --port={$port} --host={$host}", "r");
 
-        while ( ! feof($fp) ) {
-            $result = preg_replace('/\033\[[\d;]+m/','', fgets($fp, 4096) );
-            $output->write( $result );
+        while (!feof($fp)) {
+            $result = preg_replace('/\033\[[\d;]+m/', '', fgets($fp, 4096));
+            $output->write($result);
         }
 
         pclose($fp);

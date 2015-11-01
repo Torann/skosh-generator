@@ -1,11 +1,12 @@
-<?php namespace Skosh\Content;
+<?php
 
+namespace Skosh\Content;
+
+use Skosh\Builder;
 use Skosh\Parsers\Markdown;
 use Skosh\Parsers\Textile;
-use Skosh\Builder;
-
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Abastract content class, parent for Page and Post.
@@ -13,8 +14,8 @@ use Symfony\Component\Yaml\Yaml;
 abstract class Content
 {
     const TYPE_MARKDOWN = 'markdown';
-    const TYPE_TEXTILE  = 'textile';
-    const TYPE_TWIG     = 'twig';
+    const TYPE_TEXTILE = 'textile';
+    const TYPE_TWIG = 'twig';
 
     protected $meta;
 
@@ -64,7 +65,7 @@ abstract class Content
     public function __construct(SplFileInfo $file, Builder $builder)
     {
         $this->builder = $builder;
-        $this->type    = self::TYPE_TWIG;
+        $this->type = self::TYPE_TWIG;
 
         $this->load($file);
     }
@@ -72,8 +73,8 @@ abstract class Content
     /**
      * Get the specified metadata value.
      *
-     * @param  string  $key
-     * @param  mixed   $default
+     * @param  string $key
+     * @param  mixed  $default
      * @return mixed
      */
     public function get($key, $default = null)
@@ -84,7 +85,7 @@ abstract class Content
     /**
      * Determine if the given metadata value exists.
      *
-     * @param  string  $key
+     * @param  string $key
      * @return bool
      */
     public function has($key)
@@ -101,7 +102,7 @@ abstract class Content
     protected function load(SplFileInfo $file)
     {
         // File info
-        $this->filename   = $file->getBasename();
+        $this->filename = $file->getBasename();
         $this->sourcePath = $file->getRelativePath();
 
         // Load the file
@@ -113,8 +114,7 @@ abstract class Content
         $meta = Yaml::parse($meta);
 
         // Parse content
-        switch($file->getExtension())
-        {
+        switch ($file->getExtension()) {
             case 'md':
             case 'markdown':
                 $content = Markdown::parse($content);
@@ -129,7 +129,7 @@ abstract class Content
 
         // Set content
         $this->content = $content;
-        $this->meta    = $meta;
+        $this->meta = $meta;
 
         // Set target
         $this->setTarget($file);
@@ -138,8 +138,8 @@ abstract class Content
         $this->paginate = isset($this->meta['paginate']);
 
         // Get parent page
-        if($root = dirname(dirname($this->target))) {
-            if($root !== DIRECTORY_SEPARATOR) {
+        if ($root = dirname(dirname($this->target))) {
+            if ($root !== DIRECTORY_SEPARATOR) {
                 $this->parentId = ltrim($root, '/');
             }
         }
@@ -153,9 +153,9 @@ abstract class Content
         }
 
         // Set basic values
-        $this->id       = trim($this->url, '/');
-        $this->title    = $this->get('title');
-        $this->full_url = rtrim($this->builder->app->getSetting('url'), '/').$this->url;
+        $this->id = trim($this->url, '/');
+        $this->title = $this->get('title');
+        $this->full_url = rtrim($this->builder->app->getSetting('url'), '/') . $this->url;
 
         // Set Description
         if ($this->has('description')) {
@@ -169,7 +169,7 @@ abstract class Content
     /**
      * Parse metadata and content
      *
-     * @param  string  $data
+     * @param  string $data
      * @return array
      */
     protected function splitContentMeta($data)
@@ -273,7 +273,7 @@ abstract class Content
      * Magic method to determine if the
      * given metadata value exists.
      *
-     * @param  string  $key
+     * @param  string $key
      * @return mixed
      */
     public function __isset($key)
@@ -285,7 +285,7 @@ abstract class Content
      * Magic method to get the specified
      * metadata value.
      *
-     * @param  string  $key
+     * @param  string $key
      * @return mixed
      */
     public function __get($key)

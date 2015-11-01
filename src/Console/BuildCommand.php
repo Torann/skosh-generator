@@ -1,12 +1,12 @@
-<?php namespace Skosh\Console;
+<?php
 
-use Skosh\Builder;
+namespace Skosh\Console;
+
 use Skosh\Event;
-
+use Skosh\Builder;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class BuildCommand extends Command
@@ -31,8 +31,10 @@ class BuildCommand extends Command
             ->setName('build')
             ->setDescription('Renders the web site')
             ->addOption('env', 'e', InputOption::VALUE_OPTIONAL, 'Which environment to build for.', 'local')
-            ->addOption('part', 'p', InputOption::VALUE_OPTIONAL, 'Which part of the site to build [config, static, pages, or assets]', 'all')
-            ->addOption('skip', 's', InputOption::VALUE_OPTIONAL, 'Which part of the site to skip [config, static, pages, or assets]');
+            ->addOption('part', 'p', InputOption::VALUE_OPTIONAL,
+                'Which part of the site to build [config, static, pages, or assets]', 'all')
+            ->addOption('skip', 's', InputOption::VALUE_OPTIONAL,
+                'Which part of the site to skip [config, static, pages, or assets]');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -44,7 +46,7 @@ class BuildCommand extends Command
         $this->builder = new Builder($output, $app);
 
         // Get arguments
-        $env  = $app->getEnvironment();
+        $env = $app->getEnvironment();
         $part = $input->getOption('part');
         $skip = $input->getOption('skip');
 
@@ -59,7 +61,7 @@ class BuildCommand extends Command
         }
 
         // Remove all built files
-        if (! $skip && $part === 'all') {
+        if (!$skip && $part === 'all') {
             $output->writeln("<comment>Cleaning target...</comment>");
             $this->builder->cleanTarget();
         }
@@ -77,8 +79,7 @@ class BuildCommand extends Command
         }
 
         // Build assets
-        if ($skip !== 'assets' && in_array($part, ['all', 'assets']))
-        {
+        if ($skip !== 'assets' && in_array($part, ['all', 'assets'])) {
             $output->writeln("<comment>Building assets (gulp)...</comment>\n");
             $output->writeln(shell_exec("gulp --target={$this->target} --env={$env}"));
 

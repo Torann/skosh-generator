@@ -1,4 +1,6 @@
-<?php namespace Skosh;
+<?php
+
+namespace Skosh;
 
 use Symfony\Component\Yaml\Parser;
 
@@ -9,13 +11,13 @@ class Config
      *
      * @var array
      */
-    public $config = array();
+    public $config = [];
 
     /**
      * Initializer.
      *
-     * @param string $env   Environment
-     * @param string $file  Config filename
+     * @param string $env  Environment
+     * @param string $file Config filename
      */
     public function __construct($env = 'local', $file = 'config')
     {
@@ -37,7 +39,7 @@ class Config
     /**
      * Save array to file
      *
-     * @param  string  $path
+     * @param  string $path
      * @return bool
      */
     public function export($path)
@@ -48,8 +50,8 @@ class Config
     /**
      * Loads and parses the config file
      *
-     * @param string $env   Environment
-     * @param string $file  Config filename
+     * @param string $env  Environment
+     * @param string $file Config filename
      * @return void
      * @throws \Exception
      */
@@ -58,10 +60,10 @@ class Config
         $path = getcwd() . DIRECTORY_SEPARATOR;
 
         // File paths
-        $configPath    = "{$path}{$file}.yml";
+        $configPath = "{$path}{$file}.yml";
         $envConfigPath = "{$path}{$file}_{$env}.yml";
 
-        if ( !file_exists($configPath)) {
+        if (!file_exists($configPath)) {
             throw new \Exception("Config file not found at \"{$configPath}\".");
         }
 
@@ -78,12 +80,10 @@ class Config
         $this->config = $config ? $config : [];
 
         // Load environment specific config
-        if ( file_exists($envConfigPath))
-        {
+        if (file_exists($envConfigPath)) {
             $data = file_get_contents($envConfigPath);
 
-            if($data)
-            {
+            if ($data) {
                 $config = $yaml->parse($data);
                 $config = $config ? $config : [];
 

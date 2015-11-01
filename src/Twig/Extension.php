@@ -1,4 +1,6 @@
-<?php namespace Skosh\Twig;
+<?php
+
+namespace Skosh\Twig;
 
 use Parsedown;
 use Skosh\Builder;
@@ -21,9 +23,9 @@ class Extension extends \Twig_Extension
      *
      * @var array
      */
-    private $globals = array();
+    private $globals = [];
 
-    public function __construct(Builder $builder, array $globals = array())
+    public function __construct(Builder $builder, array $globals = [])
     {
         $this->builder = $builder;
         $this->globals = $globals;
@@ -32,23 +34,23 @@ class Extension extends \Twig_Extension
     public function initRuntime(\Twig_Environment $env)
     {
         // Add an escaper for XML
-        $env->getExtension('core')->setEscaper('xml', function($env, $content) {
+        $env->getExtension('core')->setEscaper('xml', function ($env, $content) {
             return htmlentities($content, ENT_COMPAT | ENT_XML1);
         });
     }
 
     public function getFunctions()
     {
-        return array(
-            'isCurrent'   => new \Twig_Function_Method($this, 'functionIsCurrent'),
+        return [
+            'isCurrent' => new \Twig_Function_Method($this, 'functionIsCurrent'),
             'file_exists' => new \Twig_Function_Method($this, 'functionFileExists'),
-            'asset'       => new \Twig_Function_Method($this, 'functionGetAsset'),
-            'share_link'  => new \Twig_Function_Method($this, 'functionShareLink', ['is_safe' => ['twig', 'html']]),
-            'editButton'  => new \Twig_Function_Method($this, 'functionEditButton', [
+            'asset' => new \Twig_Function_Method($this, 'functionGetAsset'),
+            'share_link' => new \Twig_Function_Method($this, 'functionShareLink', ['is_safe' => ['twig', 'html']]),
+            'editButton' => new \Twig_Function_Method($this, 'functionEditButton', [
                 'needs_environment' => true,
-                'is_safe'           => ['twig', 'html']
+                'is_safe' => ['twig', 'html']
             ]),
-        );
+        ];
     }
 
     public function getFilters()
@@ -72,7 +74,7 @@ class Extension extends \Twig_Extension
 
     public function functionFileExists($file)
     {
-        return file_exists($this->builder->target.$file);
+        return file_exists($this->builder->target . $file);
     }
 
     public function functionIsCurrent($page, $pattern)
@@ -93,8 +95,7 @@ class Extension extends \Twig_Extension
     public function functionEditButton(\Twig_Environment $environment, $page, $parent, $template)
     {
         // Must be markdown and have a parent
-        if ($page->type === 'markdown' && $parent)
-        {
+        if ($page->type === 'markdown' && $parent) {
             // Get URL
             $url = $parent->get('edit_url');
 
@@ -110,10 +111,10 @@ class Extension extends \Twig_Extension
             ], $url);
 
             // Render button template
-            return $environment->render($template, array(
+            return $environment->render($template, [
                 'edit_url' => $edit_url,
-                'page'     => $page
-            ));
+                'page' => $page
+            ]);
         }
     }
 

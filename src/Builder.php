@@ -1,18 +1,19 @@
-<?php namespace Skosh;
+<?php
 
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
+namespace Skosh;
+
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Console\Output\OutputInterface;
 
 use Twig_Environment;
+use Twig_Loader_Chain;
 use Twig_Extension_Debug;
 use Twig_Loader_Filesystem;
-use Twig_Loader_Chain;
-use Twig_Loader_String;
 
-use Skosh\Console\Application;
-use Skosh\Content\Content;
 use Skosh\Content\Doc;
+use Skosh\Content\Content;
+use Skosh\Console\Application;
 
 class Builder
 {
@@ -59,13 +60,20 @@ class Builder
     private $manifest;
 
     /**
+     * Twig template rendering.
+     *
+     * @var \Twig_Environment
+     */
+    private $twig;
+
+    /**
      * Initializer.
      */
     public function __construct(OutputInterface $output, Application $app)
     {
         $this->output = $output;
-        $this->app    = $app;
-        $this->site   = new Site($app);
+        $this->app = $app;
+        $this->site = new Site($app);
 
         // Set asset manifest
         $this->manifest = new AssetManifest($this->app->getEnvironment());
@@ -81,7 +89,7 @@ class Builder
         }
 
         // Ensure we have a target
-        if ( !$fs->exists($this->target)) {
+        if (!$fs->exists($this->target)) {
             $fs->mkdir($this->target);
         }
 
@@ -91,12 +99,12 @@ class Builder
 
         // If a template directory exists, add a filesystem loader to resolve
         // templates residing within it
-        $templateDir = $this->source. DIRECTORY_SEPARATOR . "_templates";
+        $templateDir = $this->source . DIRECTORY_SEPARATOR . "_templates";
         if (is_dir($templateDir)) {
             $loader->addLoader(new Twig_Loader_Filesystem($templateDir));
         }
 
-        $includesDir = $this->source. DIRECTORY_SEPARATOR . "_includes";
+        $includesDir = $this->source . DIRECTORY_SEPARATOR . "_includes";
         if (is_dir($includesDir)) {
             $loader->addLoader(new Twig_Loader_Filesystem($includesDir));
         }
@@ -104,17 +112,9 @@ class Builder
         // Full template rendering
         $this->twig = new Twig_Environment($loader, ['debug' => true]);
         $this->twig->addExtension(new Twig_Extension_Debug());
-        $this->twig->addExtension(new Twig\Extension($this, array(
+        $this->twig->addExtension(new Twig\Extension($this, [
             'site' => $this->site
-        )));
-
-        // String rendering
-        $loader = new Twig_Loader_String();
-        $this->twigString = new Twig_Environment($loader);
-        $this->twigString->addExtension(new Twig_Extension_Debug());
-        $this->twigString->addExtension(new Twig\Extension($this, array(
-            'site' => $this->site
-        )));
+        ]));
     }
 
     /**
@@ -124,20 +124,22 @@ class Builder
      */
     public function getAsset($path)
     {
-        if (starts_with($path, array('#', '//', 'mailto:', 'tel:', 'http'))) return $path;
+        if (starts_with($path, ['#', '//', 'mailto:', 'tel:', 'http'])) {
+            return $path;
+        }
 
         // Get site URL from config
         $root = $this->app->getSetting('url');
 
         // Absolute path will not be in manifest
         if ($path[0] === '/') {
-            return $root.$path;
+            return $root . $path;
         }
 
         // Check manifest
         $asset = $this->manifest->get($path);
 
-        return $root.'/assets/'.trim($asset, '/');
+        return $root . '/assets/' . trim($asset, '/');
     }
 
     /**
@@ -160,7 +162,7 @@ class Builder
 
         $this->writeln("\n<comment>Rendering content</comment>");
 
-        foreach($this->site->pages as $page) {
+        foreach ($this->site->pages as $page) {
             $this->renderContent($page);
         }
     }
@@ -176,21 +178,22 @@ class Builder
         $this->writeln("Rendering: <info>{$content->target}</info>{$tpl}");
 
         // Only template files are run through Twig (template can be "none")
-        if ($content->has('template'))
-        {
+        if ($content->has('template')) {
             if ($content->paginate) {
                 return $this->paginate($content);
             }
             else {
                 $html = $this->twig->render($content->id, [
-                    'page'     => $content,
-                    'posts'    => $this->getPosts($content),
-                    'parent'   => $this->getParent($content->parentId)
+                    'page' => $content,
+                    'posts' => $this->getPosts($content),
+                    'parent' => $this->getParent($content->parentId)
                 ]);
             }
         }
         else {
-            $html = $this->twigString->render($content->content);
+
+            $template = $this->twig->createTemplate($content->content);
+            $html = $template->render([]);
         }
 
         // Save Content
@@ -200,12 +203,12 @@ class Builder
     public function savePage($target, $html)
     {
         $fs = new Filesystem();
-        $fs->dumpFile($this->target.DIRECTORY_SEPARATOR.$target, $html);
+        $fs->dumpFile($this->target . DIRECTORY_SEPARATOR . $target, $html);
     }
 
     public function getParent($parentId)
     {
-        if($parentId && isset($this->site->pages[$parentId]) ) {
+        if ($parentId && isset($this->site->pages[$parentId])) {
             return $this->site->pages[$parentId];
         }
 
@@ -214,11 +217,13 @@ class Builder
 
     public function getPosts($content)
     {
-        if( isset($this->site->categories[$content->id]) ) {
+        if (isset($this->site->categories[$content->id])) {
             return $this->site->categories[$content->id];
         }
-        else if( isset($content->category) && isset($this->site->categories[$content->category]) ) {
-            return $this->site->categories[$content->category];
+        else {
+            if (isset($content->category) && isset($this->site->categories[$content->category])) {
+                return $this->site->categories[$content->category];
+            }
         }
 
         return [];
@@ -246,37 +251,34 @@ class Builder
      */
     public function copyStaticFiles()
     {
-        $exclude = array('less', 'js', 'css');
+        $exclude = ['less', 'js', 'css'];
 
         // Include the excludes from the config
-        $exclude = array_merge($exclude, (array) $this->app->getSetting('exclude', array()));
+        $exclude = array_merge($exclude, (array)$this->app->getSetting('exclude', []));
 
         // Create pattern
         $pattern = '/\\.(' . implode("|", $exclude) . ')$/';
 
         // Get list of files & directories to copy
-        $to_copy = (array) $this->app->getSetting('copy', array());
+        $to_copy = (array)$this->app->getSetting('copy', []);
 
         // Assets folder is hardcoded into copy
-        $to_copy = array_merge(array('assets'), $to_copy);
+        $to_copy = array_merge(['assets'], $to_copy);
         $to_copy = array_unique($to_copy);
 
         $fs = new Filesystem();
 
-        foreach ($to_copy as $location)
-        {
+        foreach ($to_copy as $location) {
             $fileInfo = new \SplFileInfo($this->source . DIRECTORY_SEPARATOR . $location);
 
             // Copy a complete directory
-            if ($fileInfo->isDir())
-            {
+            if ($fileInfo->isDir()) {
                 $finder = new Finder();
                 $finder->files()
                     ->in($this->source . DIRECTORY_SEPARATOR . $location)
                     ->notName($pattern);
 
-                foreach ($finder as $file)
-                {
+                foreach ($finder as $file) {
                     $path = $location . DIRECTORY_SEPARATOR . $file->getRelativePathname();
 
                     $source = $file->getRealPath();
@@ -306,7 +308,7 @@ class Builder
         $filesystem = new Filesystem();
 
         // Get files and directories to remove
-        $files = array_diff(scandir($this->target), array('.', '..'));
+        $files = array_diff(scandir($this->target), ['.', '..']);
         $files = preg_grep('/[^.gitignore]/i', $files);
 
         // Remove files
@@ -318,12 +320,12 @@ class Builder
     /**
      * Add pages for rendering
      *
-     * @param  string  $class
-     * @param  string  $path
-     * @param  string  $filter
+     * @param  string $class
+     * @param  string $path
+     * @param  string $filter
      * @return void
      */
-    private function addPages($class, $path = 'notPath' , $filter ='_')
+    private function addPages($class, $path = 'notPath', $filter = '_')
     {
         $finder = new Finder();
         $finder->files()
@@ -331,8 +333,7 @@ class Builder
             ->$path($filter)
             ->name('/\\.(md|textile|xml|twig)$/');
 
-        foreach ($finder as $file)
-        {
+        foreach ($finder as $file) {
             $page = new $class($file, $this);
             $this->writeln("Adding: <info>{$page->sourcePath}/{$page->filename}</info>");
             $this->site->addContent($page);
@@ -349,11 +350,9 @@ class Builder
     {
         $this->writeln("\n<comment>Sorting</comment>");
 
-        $cmpFn = function(Content $one, Content $other)
-        {
+        $cmpFn = function (Content $one, Content $other) {
             // Sort by chapters
-            if ($one instanceof Doc && $other instanceof Doc)
-            {
+            if ($one instanceof Doc && $other instanceof Doc) {
                 if ($one->chapter == $other->chapter) {
                     return 0;
                 }
@@ -369,14 +368,12 @@ class Builder
             return ($one->date > $other->date) ? -1 : 1;
         };
 
-        foreach($this->site->categories as $cat => &$posts)
-        {
+        foreach ($this->site->categories as $cat => &$posts) {
             // Sort posts
             usort($posts, $cmpFn);
 
             // Assign next and previous post within the category
-            foreach($posts as $key => $post)
-            {
+            foreach ($posts as $key => $post) {
                 if (isset($posts[$key - 1])) {
                     $post->next = $posts[$key - 1];
                 }
@@ -400,15 +397,14 @@ class Builder
         $maxPerPage = $this->app->getSetting('max_per_page', 15);
         $posts = $this->getPosts($content);
 
-        $slices = array();
-        $slice = array();
+        $slices = [];
+        $slice = [];
         $totalItems = 0;
 
-        foreach ($posts as $k => $v)
-        {
+        foreach ($posts as $k => $v) {
             if (count($slice) === $maxPerPage) {
                 $slices[] = $slice;
-                $slice = array();
+                $slice = [];
             }
 
             $slice[$k] = $v;
@@ -418,26 +414,25 @@ class Builder
         $slices[] = $slice;
 
         // Base URL
-        $pageRoot = '/'.dirname($content->target);
+        $pageRoot = '/' . dirname($content->target);
 
         // Pagination data
-        $pagination = array(
+        $pagination = [
             'total_posts' => count($posts),
             'total_pages' => count($slices),
-            'next'  => null,
-            'prev'  => null
-        );
+            'next' => null,
+            'prev' => null
+        ];
 
         $pageNumber = 0;
-        foreach ($slices as $slice)
-        {
+        foreach ($slices as $slice) {
             $pageNumber++;
 
             $target = ($pageNumber > 1) ? "{$pageRoot}/page/{$pageNumber}/index.html" : $content->target;
 
             // Get previous page
             if ($pageNumber > 1) {
-                $pagination['prev'] = ($pageNumber === 2) ? $pageRoot : "{$pageRoot}/page/".($pageNumber-1);
+                $pagination['prev'] = ($pageNumber === 2) ? $pageRoot : "{$pageRoot}/page/" . ($pageNumber - 1);
             }
             else {
                 $pagination['prev'] = null;
@@ -445,7 +440,7 @@ class Builder
 
             // Get next page
             if ($pageNumber + 1 <= $pagination['total_pages']) {
-                $pagination['next'] = "{$pageRoot}/page/".($pageNumber+1);
+                $pagination['next'] = "{$pageRoot}/page/" . ($pageNumber + 1);
             }
             else {
                 $pagination['next'] = null;
@@ -459,10 +454,10 @@ class Builder
 
             // Render content
             $html = $this->twig->render($content->id, [
-                'page'       => $content,
-                'posts'      => $slice,
+                'page' => $content,
+                'posts' => $slice,
                 'pagination' => $pagination,
-                'parent'     => $this->getParent($content->parentId)
+                'parent' => $this->getParent($content->parentId)
             ]);
 
             // Save Content
@@ -477,8 +472,7 @@ class Builder
      */
     private function writeln($msg)
     {
-        if ($this->output->isVerbose())
-        {
+        if ($this->output->isVerbose()) {
             $this->output->writeln($msg);
         }
     }

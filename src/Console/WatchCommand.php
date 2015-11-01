@@ -1,4 +1,6 @@
-<?php namespace Skosh\Console;
+<?php
+
+namespace Skosh\Console;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,9 +18,9 @@ class WatchCommand extends Command
     {
         $fp = popen("gulp watch", "r");
 
-        while ( ! feof($fp) ) {
-            $result = preg_replace('/\033\[[\d;]+m/','', fgets($fp, 4096) );
-            $output->write( $result );
+        while (!feof($fp)) {
+            $result = preg_replace('/\033\[[\d;]+m/', '', fgets($fp, 4096));
+            $output->write($result);
         }
 
         pclose($fp);
