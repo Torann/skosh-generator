@@ -11,6 +11,8 @@ class Post extends Content
     public $date;
     public $excerpt;
     public $image;
+    public $tags;
+    public $tag_class;
     public $author = 'unknown';
 
     public function __construct(SplFileInfo $file, Builder $builder)
@@ -19,6 +21,10 @@ class Post extends Content
 
         // Get Category
         $this->category = $this->getCategory();
+
+        // Set tags
+        $this->tags = $this->getHumanTags();
+        $this->tag_class = $this->getTagClassNames();
 
         // Set date
         if ($this->has('date')) {
@@ -83,5 +89,31 @@ class Post extends Content
     protected function getCleanPath($path)
     {
         return preg_replace("/[\\|\/]?_posts[\\|\/]?/", DIRECTORY_SEPARATOR, $path);
+    }
+
+    /**
+     * Get human readable tags.
+     *
+     * @return string
+     */
+    protected function getHumanTags()
+    {
+        $tags = explode('|', $this->get('tags'));
+
+        return implode(' & ', $tags);
+    }
+
+    /**
+     * Get human readable tags.
+     *
+     * @return string
+     */
+    protected function getTagClassNames()
+    {
+        $tags = array_map(function($tag) {
+            return slugify($tag);
+        }, explode('|', $this->get('tags')));
+
+        return implode(' ', $tags);
     }
 }
