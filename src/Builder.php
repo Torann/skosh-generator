@@ -162,14 +162,15 @@ class Builder
 
         $this->writeln("\n<comment>Rendering content</comment>");
 
-        foreach ($this->site->pages as $page) {
-            $this->renderContent($page);
+        foreach ($this->site->pages as $content) {
+            $this->renderContent($content);
         }
     }
 
     /**
      * Renders content
      *
+     * @param  Content $content
      * @return mixed
      */
     private function renderContent(Content $content)
@@ -178,7 +179,8 @@ class Builder
         $this->writeln("Rendering: <info>{$content->target}</info>{$tpl}");
 
         // Only template files are run through Twig (template can be "none")
-        if ($content->has('template')) {
+        if ($content->has('template'))
+        {
             if ($content->paginate) {
                 return $this->paginate($content);
             }
@@ -191,7 +193,6 @@ class Builder
             }
         }
         else {
-
             $template = $this->twig->createTemplate($content->content);
             $html = $template->render([]);
         }
@@ -200,12 +201,24 @@ class Builder
         $this->savePage($content->target, $html);
     }
 
+    /**
+     * Save page to target file.
+     *
+     * @param  string $html
+     * @param  string $target
+     */
     public function savePage($target, $html)
     {
         $fs = new Filesystem();
         $fs->dumpFile($this->target . DIRECTORY_SEPARATOR . $target, $html);
     }
 
+    /**
+     * Get parent content.
+     *
+     * @param  string $parentId
+     * @return array
+     */
     public function getParent($parentId)
     {
         if ($parentId && isset($this->site->pages[$parentId])) {
@@ -215,7 +228,13 @@ class Builder
         return [];
     }
 
-    public function getPosts($content)
+    /**
+     * Get posts for given content.
+     *
+     * @param  Content $content
+     * @return array
+     */
+    public function getPosts(Content $content)
     {
         if (isset($this->site->categories[$content->id])) {
             return $this->site->categories[$content->id];
@@ -254,7 +273,7 @@ class Builder
         $exclude = ['js', 'javascripts', 'stylesheets', 'less', 'sass'];
 
         // Include the excludes from the config
-        $exclude = array_merge($exclude, (array)$this->app->getSetting('exclude', []));
+        $exclude = array_merge($exclude, (array) $this->app->getSetting('exclude', []));
 
         // Create pattern
         $pattern = '/\\.(' . implode("|", $exclude) . ')$/';
@@ -268,11 +287,13 @@ class Builder
 
         $fs = new Filesystem();
 
-        foreach ($to_copy as $location) {
+        foreach ($to_copy as $location)
+        {
             $fileInfo = new \SplFileInfo($this->source . DIRECTORY_SEPARATOR . $location);
 
             // Copy a complete directory
-            if ($fileInfo->isDir()) {
+            if ($fileInfo->isDir())
+            {
                 $finder = new Finder();
                 $finder->files()
                     ->in($this->source . DIRECTORY_SEPARATOR . $location)
@@ -350,9 +371,11 @@ class Builder
     {
         $this->writeln("\n<comment>Sorting</comment>");
 
-        $cmpFn = function (Content $one, Content $other) {
+        $cmpFn = function (Content $one, Content $other)
+        {
             // Sort by chapters
-            if ($one instanceof Doc && $other instanceof Doc) {
+            if ($one instanceof Doc && $other instanceof Doc)
+            {
                 if ($one->chapter == $other->chapter) {
                     return 0;
                 }
@@ -368,7 +391,8 @@ class Builder
             return ($one->date > $other->date) ? -1 : 1;
         };
 
-        foreach ($this->site->categories as $cat => &$posts) {
+        foreach ($this->site->categories as $cat => &$posts)
+        {
             // Sort posts
             usort($posts, $cmpFn);
 
@@ -401,7 +425,8 @@ class Builder
         $slice = [];
         $totalItems = 0;
 
-        foreach ($posts as $k => $v) {
+        foreach ($posts as $k => $v)
+        {
             if (count($slice) === $maxPerPage) {
                 $slices[] = $slice;
                 $slice = [];
@@ -425,7 +450,8 @@ class Builder
         ];
 
         $pageNumber = 0;
-        foreach ($slices as $slice) {
+        foreach ($slices as $slice)
+        {
             $pageNumber++;
 
             $target = ($pageNumber > 1) ? "{$pageRoot}/page/{$pageNumber}/index.html" : $content->target;

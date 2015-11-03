@@ -3,6 +3,7 @@
 namespace Skosh;
 
 use DateTime;
+use Exception;
 use Skosh\Content\Page;
 use Skosh\Content\Content;
 use Skosh\Console\Application;
@@ -47,7 +48,7 @@ class Site
     /**
      * Constructor
      *
-     * @var \Skosh\Console\Application
+     * @param \Skosh\Console\Application
      */
     public function __construct(Application $app)
     {
@@ -59,7 +60,13 @@ class Site
         }
     }
 
-    public function addContent(Content $content)
+    /**
+     * Add content to site.
+     *
+     * @param  Page|Content $content
+     * @throws Exception
+     */
+    public function addContent($content)
     {
         if ($content instanceof Page) {
             $this->addPage($content);
@@ -69,16 +76,26 @@ class Site
                 $this->addChild($content);
             }
             else {
-                throw new \Exception("Unknown content type.");
+                throw new Exception("Unknown content type.");
             }
         }
     }
 
+    /**
+     * Add given page to site.
+     *
+     * @param  Content $page
+     */
     public function addPage(Content $page)
     {
         $this->pages[$page->id] = $page;
     }
 
+    /**
+     * Add child to page.
+     *
+     * @param Content $child
+     */
     public function addChild(Content $child)
     {
         $this->pages[$child->id] = $child;

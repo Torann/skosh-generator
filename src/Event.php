@@ -51,7 +51,8 @@ class Event
      */
     public static function insert($name, $callback, $once = false)
     {
-        if (static::bound($name)) {
+        if (static::bound($name))
+        {
             array_unshift(
                 static::$events[$name],
                 [$once ? 'once' : 'always' => $callback]
@@ -77,10 +78,12 @@ class Event
      */
     public static function fire($name, $data = [], $stop = false)
     {
-        if (static::bound($name)) {
+        if (static::bound($name))
+        {
             static::$fired[$name] = true;
 
-            foreach (static::$events[$name] as $key => $value) {
+            foreach (static::$events[$name] as $key => $value)
+            {
                 list($type, $callback) = each($value);
 
                 $responses[] = $response =
