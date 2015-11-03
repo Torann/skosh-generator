@@ -70,3 +70,17 @@ function url($string)
 {
     return str_replace([DIRECTORY_SEPARATOR, '//'], ['/', '/'], $string);
 }
+
+/**
+ * Turn a string into a slug.
+ *
+ * @param  string $string
+ * @return string
+ */
+function slugify($string)
+{
+    $string = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $string);
+    $string = strtolower(trim($string, '-'));
+
+    return preg_replace("/[\/_|+ -]+/", '-', $string);
+}
