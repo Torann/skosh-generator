@@ -279,14 +279,16 @@ class Builder
         $pattern = '/\\.(' . implode("|", $exclude) . ')$/';
 
         // Get list of files & directories to copy
-        $to_copy = (array)$this->app->getSetting('copy', []);
+        $to_copy = (array) $this->app->getSetting('copy', []);
 
         // Assets folder is hardcoded into copy
         $to_copy = array_merge(['assets'], $to_copy);
         $to_copy = array_unique($to_copy);
 
-        $fs = new Filesystem();
+        // Initialize file system
+        $filesystem = new Filesystem();
 
+        // Copy
         foreach ($to_copy as $location)
         {
             $fileInfo = new \SplFileInfo($this->source . DIRECTORY_SEPARATOR . $location);
@@ -296,16 +298,18 @@ class Builder
             {
                 $finder = new Finder();
                 $finder->files()
-                    ->in($this->source . DIRECTORY_SEPARATOR . $location)
-                    ->notName($pattern);
+                    ->exclude($exclude)
+                    ->notName($pattern)
+                    ->in($this->source . DIRECTORY_SEPARATOR . $location);
 
-                foreach ($finder as $file) {
+                foreach ($finder as $file)
+                {
                     $path = $location . DIRECTORY_SEPARATOR . $file->getRelativePathname();
-
+                    echo "$path\n";
                     $source = $file->getRealPath();
                     $target = $this->target . DIRECTORY_SEPARATOR . $path;
 
-                    $fs->copy($source, $target);
+                    $filesystem->copy($source, $target);
 
                     $this->writeln("Copied: <info>$path</info>");
                 }
@@ -313,7 +317,7 @@ class Builder
 
             // Copy Single File
             else {
-                $fs->copy($fileInfo->getRealPath(), $this->target . DIRECTORY_SEPARATOR . $location);
+                $filesystem->copy($fileInfo->getRealPath(), $this->target . DIRECTORY_SEPARATOR . $location);
                 $this->writeln("Copied: <info>$location</info>");
             }
         }
