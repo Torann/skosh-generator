@@ -57,7 +57,7 @@ class Config
      */
     private function load($env = 'local', $file = 'config')
     {
-        $path = getcwd() . DIRECTORY_SEPARATOR;
+        $path = getcwd() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR ;
 
         // File paths
         $configPath = "{$path}{$file}.yml";
