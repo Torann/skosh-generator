@@ -48,15 +48,12 @@ class BuildCommand extends Command
         // Get arguments
         $env = $app->getEnvironment();
         $part = $input->getOption('part');
-        $skip = $input->getOption('skip');
+        $skip = explode(',', preg_replace('/\s+/', '', $input->getOption('skip')));
 
         $isProduction = ($env === 'production');
 
         // Set system paths
         $this->target = $app->getTarget();
-
-        // For debugging
-        $output->writeln("Working directory: " . BASE_PATH);
 
         // Announce production build
         if ($isProduction) {
@@ -64,34 +61,34 @@ class BuildCommand extends Command
         }
 
         // Remove all built files
-        if (!$skip && $part === 'all') {
+        if (empty($skip) && $part === 'all') {
             $output->writeln("<comment>Cleaning target...</comment>");
             $this->builder->cleanTarget();
         }
 
         // Create server configuration
-        if ($skip !== 'config' && in_array($part, ['all', 'config'])) {
+        if (in_array('config', $skip) === false && in_array($part, ['all', 'config'])) {
             $output->writeln("<comment>Creating server configuration...</comment>");
             $this->builder->createServerConfig();
         }
 
         // Copy static files
-        if ($skip !== 'static' && in_array($part, ['all', 'static'])) {
+        if (in_array('static', $skip) === false && in_array($part, ['all', 'static'])) {
             $output->writeln("<comment>Copying statics...</comment>");
             $this->builder->copyStaticFiles();
         }
 
         // Build assets
-        if ($skip !== 'assets' && in_array($part, ['all', 'assets'])) {
+        if (in_array('assets', $skip) === false && in_array($part, ['all', 'assets'])) {
             $output->writeln("<comment>Building assets (gulp)...</comment>\n");
-            $output->writeln(shell_exec(BASE_PATH . " gulp --target={$this->target} --env={$env}"));
+            $output->writeln(shell_exec("gulp --target={$this->target} --env={$env}"));
 
             // Fire event
             Event::fire('assets.built');
         }
 
         // Build pages
-        if ($skip !== 'pages' && in_array($part, ['all', 'pages'])) {
+        if (in_array('pages', $skip) === false && in_array($part, ['all', 'pages'])) {
             $output->writeln("<comment>Building pages...</comment>");
             $this->builder->build();
         }
