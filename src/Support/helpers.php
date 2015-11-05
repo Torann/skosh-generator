@@ -72,6 +72,17 @@ function url($string)
 }
 
 /**
+ * Remove line breaks and double spaces
+ *
+ * @param  string $string
+ * @return string
+ */
+function clean_string($string)
+{
+    return trim(preg_replace('!\s+!', ' ', $string));
+}
+
+/**
  * Turn a string into a slug.
  *
  * @param  string $string

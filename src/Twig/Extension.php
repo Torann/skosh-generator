@@ -41,6 +41,7 @@ class Extension extends \Twig_Extension
         return [
             'isCurrent' => new \Twig_Function_Method($this, 'functionIsCurrent'),
             'file_exists' => new \Twig_Function_Method($this, 'functionFileExists'),
+            'clean_string' => new \Twig_Function_Method($this, 'functionCleanString'),
             'asset' => new \Twig_Function_Method($this, 'functionGetAsset'),
             'url' => new \Twig_Function_Method($this, 'functionGetUrl'),
             'share_link' => new \Twig_Function_Method($this, 'functionShareLink', ['is_safe' => ['twig', 'html']]),
@@ -73,6 +74,11 @@ class Extension extends \Twig_Extension
     public function functionFileExists($file)
     {
         return file_exists($this->builder->target . $file);
+    }
+
+    public function functionCleanString($string)
+    {
+        return clean_string($string);
     }
 
     public function functionIsCurrent($page, $pattern)
