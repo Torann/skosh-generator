@@ -8,9 +8,6 @@ use Skosh\Parsers\Textile;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Finder\SplFileInfo;
 
-/**
- * Abastract content class, parent for Page and Post.
- */
 abstract class Content
 {
     const TYPE_MARKDOWN = 'markdown';
@@ -31,7 +28,6 @@ abstract class Content
     public $id;
     public $parentId;
     public $url;
-    public $full_url;
     public $title;
     public $description;
 
@@ -155,7 +151,7 @@ abstract class Content
         // Set basic values
         $this->id = trim($this->url, '/');
         $this->title = $this->get('title');
-        $this->full_url = rtrim($this->builder->app->getSetting('url'), '/') . $this->url;
+        $this->url = $this->builder->getUrl($this->url);
 
         // Set Description
         if ($this->has('description')) {

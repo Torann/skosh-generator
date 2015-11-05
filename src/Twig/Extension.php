@@ -77,6 +77,9 @@ class Extension extends \Twig_Extension
 
     public function functionIsCurrent($page, $pattern)
     {
+        // Remove site URL from string
+        $page = str_replace($this->builder->app->getSetting('url'), '', $page);
+
         return str_is($pattern, $page);
     }
 
