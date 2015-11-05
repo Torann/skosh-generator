@@ -2,7 +2,7 @@
 
 namespace Skosh\Parsers;
 
-use ParsedownExtra;
+use Skosh\Support\SkoshParsedown;
 
 class Markdown
 {
@@ -14,6 +14,6 @@ class Markdown
      */
     public static function parse($content)
     {
-        return ParsedownExtra::instance()->text($content);
+        return SkoshParsedown::instance()->text($content);
     }
 }
