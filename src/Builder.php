@@ -118,28 +118,40 @@ class Builder
     }
 
     /**
+     * Get the URL for the given page.
+     *
+     * @param  string $url
+     * @return string
+     */
+    public function getUrl($url)
+    {
+        if (starts_with($url, ['#', '//', 'mailto:', 'tel:', 'http'])) {
+            return $url;
+        }
+
+        // Get URL root
+        $root = $this->app->getSetting('url');
+
+        return trim($root, '/') . '/' . trim($url, '/');
+    }
+
+    /**
      * Check asset manifest for a file
      *
+     * @param  string $path
      * @return string
      */
     public function getAsset($path)
     {
-        if (starts_with($path, ['#', '//', 'mailto:', 'tel:', 'http'])) {
-            return $path;
-        }
-
-        // Get site URL from config
-        $root = $this->app->getSetting('url');
-
         // Absolute path will not be in manifest
         if ($path[0] === '/') {
-            return $root . $path;
+            return $this->getUrl($path);
         }
 
-        // Check manifest
+        // Get manifest
         $asset = $this->manifest->get($path);
 
-        return $root . '/assets/' . trim($asset, '/');
+        return $this->getUrl('/assets/' . trim($asset, '/'));
     }
 
     /**

@@ -6,9 +6,6 @@ use Parsedown;
 use Skosh\Builder;
 use Skosh\Twig\Extensions\SocialShare;
 
-/**
- * A twig extension for Skosh
- */
 class Extension extends \Twig_Extension
 {
     /**
@@ -45,6 +42,7 @@ class Extension extends \Twig_Extension
             'isCurrent' => new \Twig_Function_Method($this, 'functionIsCurrent'),
             'file_exists' => new \Twig_Function_Method($this, 'functionFileExists'),
             'asset' => new \Twig_Function_Method($this, 'functionGetAsset'),
+            'url' => new \Twig_Function_Method($this, 'functionGetUrl'),
             'share_link' => new \Twig_Function_Method($this, 'functionShareLink', ['is_safe' => ['twig', 'html']]),
             'editButton' => new \Twig_Function_Method($this, 'functionEditButton', [
                 'needs_environment' => true,
@@ -87,6 +85,11 @@ class Extension extends \Twig_Extension
         return SocialShare::generate($network, $page);
     }
 
+    public function functionGetUrl($path)
+    {
+        return $this->builder->getUrl($path);
+    }
+
     public function functionGetAsset($path)
     {
         return $this->builder->getAsset($path);
@@ -116,6 +119,8 @@ class Extension extends \Twig_Extension
                 'page' => $page
             ]);
         }
+
+        return '';
     }
 
     public function filterMarkdown($string)
@@ -133,5 +138,7 @@ class Extension extends \Twig_Extension
         if ($string) {
             return "{$prefix}{$string}{$sufix}";
         }
+
+        return '';
     }
 }
