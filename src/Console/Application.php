@@ -123,7 +123,6 @@ class Application extends BaseApplication
         $defaultCommands = parent::getDefaultCommands();
 
         $defaultCommands[] = new BuildCommand();
-        $defaultCommands[] = new InitCommand();
         $defaultCommands[] = new ServeCommand();
         $defaultCommands[] = new OptimizeCommand();
         $defaultCommands[] = new PublishCommand();
