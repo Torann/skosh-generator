@@ -10,6 +10,7 @@ class Doc extends Content
     public $category;
     public $chapter;
     public $date;
+    public $doc_url;
 
     public function __construct(SplFileInfo $file, Builder $builder)
     {
@@ -17,6 +18,9 @@ class Doc extends Content
 
         // Get Category
         $this->category = $this->getCategory();
+
+        // Set doc url
+        $this->doc_url = $this->builder->getUrl($this->get('doc_url'));
 
         // Set chapter
         $this->chapter = $this->get('chapter');

@@ -125,7 +125,7 @@ class Builder
      */
     public function getUrl($url)
     {
-        if (starts_with($url, ['#', '//', 'mailto:', 'tel:', 'http'])) {
+        if (!$url || starts_with($url, ['#', '//', 'mailto:', 'tel:', 'http'])) {
             return $url;
         }
 

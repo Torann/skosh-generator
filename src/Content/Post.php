@@ -46,10 +46,11 @@ class Post extends Content
         $this->author = $this->get('author', $this->author);
 
         // Set Images
-        if ($this->has('image')) {
+        if ($this->has('image'))
+        {
             $fileinfo = pathinfo($this->get('image'));
 
-            $template = "{$fileinfo['dirname']}/{$fileinfo['filename']}-%SIZE%.{$fileinfo['extension']}";
+            $template = $this->builder->getUrl("{$fileinfo['dirname']}/{$fileinfo['filename']}-%SIZE%.{$fileinfo['extension']}");
 
             $this->image = [
                 'full' => $this->get('image'),

@@ -17,12 +17,13 @@ class Page extends Content
 
     public function image($name, $default = null)
     {
-        if ($this->has('images')) {
+        if ($this->has('images'))
+        {
             $path = rtrim($this->get('images'), DIRECTORY_SEPARATOR);
             $image = join(DIRECTORY_SEPARATOR, [$path, $name]);
 
             if (file_exists($this->builder->target . $image)) {
-                return url($image);
+                return $this->builder->getUrl($image);
             }
         }
 
