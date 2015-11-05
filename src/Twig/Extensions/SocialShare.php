@@ -44,7 +44,7 @@ class SocialShare
             '{text}',
             '{image}'
         ], [
-            urlencode($page->full_url),
+            urlencode($page->url),
             urlencode($page->title),
             urlencode($text),
             urlencode($page->get('image'))
