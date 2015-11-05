@@ -470,20 +470,27 @@ class Builder
         {
             $pageNumber++;
 
-            $target = ($pageNumber > 1) ? "{$pageRoot}/page/{$pageNumber}/index.html" : $content->target;
+            // Set page target filename
+            $target = ($pageNumber > 1) ? "{$pageRoot}/page/{$pageNumber}" : $content->target;
 
-            // Get previous page
-            if ($pageNumber > 1) {
-                $pagination['prev'] = ($pageNumber === 2) ? $pageRoot : "{$pageRoot}/page/" . ($pageNumber - 1);
+            // Previous page is index
+            if ($pageNumber === 2) {
+                $pagination['prev'] = $this->getUrl($pageRoot);
             }
+            // Set previous page
+            else if ($pageNumber > 1) {
+                $pagination['prev'] = $this->getUrl("{$pageRoot}/page/" . ($pageNumber - 1));
+            }
+            // No previous page
             else {
                 $pagination['prev'] = null;
             }
 
-            // Get next page
+            // Set next page
             if ($pageNumber + 1 <= $pagination['total_pages']) {
-                $pagination['next'] = "{$pageRoot}/page/" . ($pageNumber + 1);
+                $pagination['next'] = $this->getUrl("{$pageRoot}/page/" . ($pageNumber + 1));
             }
+            // No next page
             else {
                 $pagination['next'] = null;
             }
@@ -492,7 +499,7 @@ class Builder
             $pagination['page'] = $pageNumber;
 
             // Set page URL
-            $content->url = ($pageNumber > 1) ? dirname($target) : $content->url;
+            $content->url = ($pageNumber > 1) ? $this->getUrl(dirname($target)) : $content->url;
 
             // Render content
             $html = $this->twig->render($content->id, [
