@@ -57,11 +57,6 @@ class Application extends BaseApplication
             }
         }
 
-        // Initializing a new project is a special occasion
-        if ($name === 'init') {
-            $this->environment = 'initializing';
-        }
-
         // Load config
         $this->config = new Config($this->environment);
 
