@@ -57,11 +57,11 @@ class Config
      */
     private function load($env = 'local', $file = 'config')
     {
-        $path = getcwd() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR ;
+        $path = BASE_PATH . '/config';
 
         // File paths
-        $configPath = "{$path}{$file}.yml";
-        $envConfigPath = "{$path}{$file}_{$env}.yml";
+        $configPath = "{$path}/{$file}.yml";
+        $envConfigPath = "{$path}/{$file}_{$env}.yml";
 
         if (!file_exists($configPath)) {
             throw new \Exception("Config file not found at \"{$configPath}\".");

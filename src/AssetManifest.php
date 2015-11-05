@@ -37,7 +37,7 @@ class AssetManifest
      */
     public function load()
     {
-        $file = getcwd() . DIRECTORY_SEPARATOR . 'rev-manifest.json';
+        $file = BASE_PATH . '/rev-manifest.json';
 
         if (file_exists($file)) {
             $this->manifest = json_decode(file_get_contents($file), true);

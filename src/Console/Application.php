@@ -100,7 +100,7 @@ class Application extends BaseApplication
      */
     public function getSource()
     {
-        return realpath(getcwd() . DIRECTORY_SEPARATOR . 'source');
+        return realpath(BASE_PATH.'/source');
     }
 
     /**
@@ -110,7 +110,7 @@ class Application extends BaseApplication
      */
     public function getTarget()
     {
-        return getcwd() . $this->getSetting('target', 'public');
+        return BASE_PATH . $this->getSetting('target', 'public');
     }
 
     /**

@@ -55,6 +55,9 @@ class BuildCommand extends Command
         // Set system paths
         $this->target = $app->getTarget();
 
+        // For debugging
+        $output->writeln("Working directory: " . BASE_PATH);
+
         // Announce production build
         if ($isProduction) {
             $output->writeln("<info>Building production version...</info>");
@@ -81,7 +84,7 @@ class BuildCommand extends Command
         // Build assets
         if ($skip !== 'assets' && in_array($part, ['all', 'assets'])) {
             $output->writeln("<comment>Building assets (gulp)...</comment>\n");
-            $output->writeln(shell_exec("gulp --target={$this->target} --env={$env}"));
+            $output->writeln(shell_exec(BASE_PATH . " gulp --target={$this->target} --env={$env}"));
 
             // Fire event
             Event::fire('assets.built');
