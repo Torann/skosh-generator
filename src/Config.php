@@ -57,7 +57,7 @@ class Config
      */
     private function load($env = 'local', $file = 'config')
     {
-        $path = BASE_PATH . '/config';
+        $path = BASE_PATH . ($file === '.env' ? '' : '/config');
 
         // File paths
         $configPath = "{$path}/{$file}.yml";
