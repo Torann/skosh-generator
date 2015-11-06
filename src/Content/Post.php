@@ -53,7 +53,7 @@ class Post extends Content
             $template = $this->builder->getUrl("{$fileinfo['dirname']}/{$fileinfo['filename']}-%SIZE%.{$fileinfo['extension']}");
 
             $this->image = [
-                'full' => $this->get('image'),
+                'full' => $this->builder->getUrl($this->get('image')),
                 'medium' => str_replace('%SIZE%', 'medium', $template),
                 'thumb' => str_replace('%SIZE%', 'thumb', $template)
             ];

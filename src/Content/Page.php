@@ -27,6 +27,6 @@ class Page extends Content
             }
         }
 
-        return $default;
+        return $this->builder->getUrl($default);
     }
 }
