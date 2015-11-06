@@ -47,6 +47,9 @@ class PublishCommand extends Command
         // Get application instance
         $app = $this->getApplication();
 
+        // Set CLI output
+        $app->setOutput($output);
+
         // Get arguments
         $server = strtolower($input->getArgument('server'));
 
@@ -85,7 +88,8 @@ class PublishCommand extends Command
      */
     protected function validateServer($server)
     {
-        if (in_array($server, array_keys($this->servers))) {
+        if (in_array($server, array_keys($this->servers)))
+        {
             // Get server options
             $options = $this->config->get($server);
 
@@ -94,7 +98,7 @@ class PublishCommand extends Command
             }
 
             if (shell_exec("which {$this->servers[$server]}") == '') {
-                throw new \Exception("Shell command \"{$cmd}\" is required to publish using {$server}");
+                throw new \Exception("Shell command '' is required to publish using {$server}");
             }
 
             return true;

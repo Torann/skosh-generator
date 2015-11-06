@@ -25,6 +25,9 @@ class ServeCommand extends Command
         // Get application instance
         $app = $this->getApplication();
 
+        // Set CLI output
+        $app->setOutput($output);
+
         // Get target for Gulp
         $target = $app->getTarget();
 
@@ -33,7 +36,8 @@ class ServeCommand extends Command
         $host = $input->getOption('host');
 
         // Was the build command ran?
-        if (!file_exists($target . DIRECTORY_SEPARATOR . 'index.html')) {
+        if (!file_exists($target . DIRECTORY_SEPARATOR . 'index.html'))
+        {
             // Create production build command
             $command = $app->find('build');
 

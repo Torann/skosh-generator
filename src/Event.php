@@ -86,8 +86,13 @@ class Event
             {
                 list($type, $callback) = each($value);
 
+                // Call back is a class
+                if (is_string($callback)) {
+                    $callback = [$instance = new $callback(), 'handle'];
+                }
+
                 $responses[] = $response =
-                    call_user_func_array($callback, (array)$data);
+                    call_user_func_array($callback, (array) $data);
 
                 if ($type == 'once') {
                     unset(static::$events[$name][$key]);

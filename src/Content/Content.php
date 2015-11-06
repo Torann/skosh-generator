@@ -149,7 +149,7 @@ abstract class Content
         }
 
         // Set basic values
-        $this->id = trim($this->url, '/');
+        $this->id = trim($this->url, '/') ?: 'root';
         $this->title = $this->get('title');
         $this->url = $this->builder->getUrl($this->url);
 

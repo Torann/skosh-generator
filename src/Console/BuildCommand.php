@@ -12,13 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class BuildCommand extends Command
 {
     /**
-     * Skosh builder
-     *
-     * @var \Skosh\Builder
-     */
-    protected $builder;
-
-    /**
      * Path to the target directory.
      *
      * @var string
@@ -42,8 +35,11 @@ class BuildCommand extends Command
         // Get application instance
         $app = $this->getApplication();
 
+        // Set CLI output
+        $app->setOutput($output);
+
         // Initialize builder
-        $this->builder = new Builder($output, $app);
+        $builder = new Builder($app);
 
         // Get arguments
         $env = $app->getEnvironment();
@@ -63,19 +59,19 @@ class BuildCommand extends Command
         // Remove all built files
         if (empty($skip) && $part === 'all') {
             $output->writeln("<comment>Cleaning target...</comment>");
-            $this->builder->cleanTarget();
+            $builder->cleanTarget();
         }
 
         // Create server configuration
         if (in_array('config', $skip) === false && in_array($part, ['all', 'config'])) {
             $output->writeln("<comment>Creating server configuration...</comment>");
-            $this->builder->createServerConfig();
+            $builder->createServerConfig();
         }
 
         // Copy static files
         if (in_array('static', $skip) === false && in_array($part, ['all', 'static'])) {
             $output->writeln("<comment>Copying statics...</comment>");
-            $this->builder->copyStaticFiles();
+            $builder->copyStaticFiles();
         }
 
         // Build assets
@@ -90,7 +86,7 @@ class BuildCommand extends Command
         // Build pages
         if (in_array('pages', $skip) === false && in_array($part, ['all', 'pages'])) {
             $output->writeln("<comment>Building pages...</comment>");
-            $this->builder->build();
+            $builder->build();
         }
 
         $output->writeln("<info>Build complete!</info>");

@@ -6,10 +6,11 @@
  * @param  mixed
  * @return void
  */
-function dd()
+function dd($arg)
 {
 //    header('Content-Type: application/json');
-    echo print_r(func_get_args());
+    print_r($arg);
+    echo "\n";
     die(1);
 }
 
@@ -90,8 +91,8 @@ function clean_string($string)
  */
 function slugify($string)
 {
-    $string = preg_replace("/[^a-zA-Z0-9\/_|+ -]/", '', $string);
+    $string = preg_replace("/[^\\a-zA-Z0-9\/_\|\+\s\-]/", '', $string);
     $string = strtolower(trim($string, '-'));
 
-    return preg_replace("/[\/_|+ -]+/", '-', $string);
+    return strip_tags(preg_replace("/[\/\\\_\|\+\s\-]+/", '-', $string));
 }

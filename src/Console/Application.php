@@ -2,6 +2,7 @@
 
 namespace Skosh\Console;
 
+use Skosh\Event;
 use Skosh\Config;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -24,6 +25,13 @@ class Application extends BaseApplication
      * @var string
      */
     protected $environment = 'local';
+
+    /**
+     * Output object for writing to console.
+     *
+     * @var \Symfony\Component\Console\Output\OutputInterface
+     */
+    private $output;
 
     /**
      * Set project name and version.
@@ -63,7 +71,32 @@ class Application extends BaseApplication
         // Set local timezone
         date_default_timezone_set($this->getSetting('timezone', 'America/New_York'));
 
+        // Register events
+        $this->registerEvents();
+
         return parent::doRun($input, $output);
+    }
+
+    /**
+     * Register custom events.
+     */
+    private function registerEvents()
+    {
+        foreach ($this->getSetting('events', []) as $event => $listeners) {
+            foreach ($listeners as $listener) {
+                Event::bind($event, $listener);
+            }
+        }
+    }
+
+    /**
+     * Set CLI output.
+     *
+     * @param OutputInterface $output
+     */
+    public function setOutput(OutputInterface $output)
+    {
+        $this->output = $output;
     }
 
     /**
@@ -119,10 +152,22 @@ class Application extends BaseApplication
 
         $defaultCommands[] = new BuildCommand();
         $defaultCommands[] = new ServeCommand();
-        $defaultCommands[] = new OptimizeCommand();
         $defaultCommands[] = new PublishCommand();
         $defaultCommands[] = new WatchCommand();
 
         return $defaultCommands;
+    }
+
+    /**
+     * Writes to console
+     *
+     * @param  string|array $messages
+     * @return void
+     */
+    public function writeln($messages)
+    {
+        if ($this->output->isVerbose()) {
+            $this->output->writeln($messages);
+        }
     }
 }

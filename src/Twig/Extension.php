@@ -3,43 +3,19 @@
 namespace Skosh\Twig;
 
 use Parsedown;
-use Skosh\Builder;
 use Skosh\Twig\Extensions\SocialShare;
 
-class Extension extends \Twig_Extension
+class Extension extends AbstractExtension
 {
     /**
-     * Application instance.
+     * Returns a list of functions to add to the existing list.
      *
-     * @var \Skosh\Builder
+     * @return array
      */
-    private $builder;
-
-    /**
-     * Holds a list of global variables.
-     *
-     * @var array
-     */
-    private $globals = [];
-
-    public function __construct(Builder $builder, array $globals = [])
-    {
-        $this->builder = $builder;
-        $this->globals = $globals;
-    }
-
-    public function initRuntime(\Twig_Environment $env)
-    {
-        // Add an escaper for XML
-        $env->getExtension('core')->setEscaper('xml', function ($env, $content) {
-            return htmlentities($content, ENT_COMPAT | ENT_XML1);
-        });
-    }
-
     public function getFunctions()
     {
         return [
-            'isCurrent' => new \Twig_Function_Method($this, 'functionIsCurrent'),
+            'isCurrent' => new \Twig_Function_Method($this, 'isCurrent'),
             'file_exists' => new \Twig_Function_Method($this, 'functionFileExists'),
             'clean_string' => new \Twig_Function_Method($this, 'functionCleanString'),
             'asset' => new \Twig_Function_Method($this, 'functionGetAsset'),
@@ -52,6 +28,11 @@ class Extension extends \Twig_Extension
         ];
     }
 
+    /**
+     * Returns a list of filters to add to the existing list.
+     *
+     * @return array
+     */
     public function getFilters()
     {
         return [
@@ -61,32 +42,14 @@ class Extension extends \Twig_Extension
         ];
     }
 
-    public function getGlobals()
-    {
-        return $this->globals;
-    }
-
-    public function getName()
-    {
-        return 'skosh';
-    }
-
     public function functionFileExists($file)
     {
-        return file_exists($this->builder->target . $file);
+        return file_exists($this->getBuilder()->target . $file);
     }
 
     public function functionCleanString($string)
     {
         return clean_string($string);
-    }
-
-    public function functionIsCurrent($page, $pattern)
-    {
-        // Remove site URL from string
-        $page = str_replace($this->builder->app->getSetting('url'), '', $page);
-
-        return str_is($pattern, $page);
     }
 
     public function functionShareLink($network, $page)
@@ -96,12 +59,12 @@ class Extension extends \Twig_Extension
 
     public function functionGetUrl($path)
     {
-        return $this->builder->getUrl($path);
+        return $this->getBuilder()->getUrl($path);
     }
 
     public function functionGetAsset($path)
     {
-        return $this->builder->getAsset($path);
+        return $this->getBuilder()->getAsset($path);
     }
 
     public function functionEditButton(\Twig_Environment $environment, $page, $parent, $template)

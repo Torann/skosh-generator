@@ -4,8 +4,8 @@ namespace Skosh;
 
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Console\Output\OutputInterface;
 
+use Twig_Extension;
 use Twig_Environment;
 use Twig_Loader_Chain;
 use Twig_Extension_Debug;
@@ -39,11 +39,11 @@ class Builder
     public $app;
 
     /**
-     * Output object for writing to console.
+     * All of the registered service providers.
      *
-     * @var \Symfony\Component\Console\Output\OutputInterface
+     * @var array
      */
-    private $output;
+    private $serviceProviders = [];
 
     /**
      * Site objects holds the compiled site data.
@@ -68,10 +68,11 @@ class Builder
 
     /**
      * Initializer.
+     *
+     * @param Application $app
      */
-    public function __construct(OutputInterface $output, Application $app)
+    public function __construct(Application $app)
     {
-        $this->output = $output;
         $this->app = $app;
         $this->site = new Site($app);
 
@@ -111,10 +112,51 @@ class Builder
 
         // Full template rendering
         $this->twig = new Twig_Environment($loader, ['debug' => true]);
-        $this->twig->addExtension(new Twig_Extension_Debug());
-        $this->twig->addExtension(new Twig\Extension($this, [
-            'site' => $this->site
-        ]));
+
+        // Make the site variable global
+        $this->twig->addGlobal('site', $this->site);
+
+        // Add an escaper for XML
+        $this->twig->getExtension('core')->setEscaper('xml', function ($env, $content) {
+            return htmlentities($content, ENT_COMPAT | ENT_XML1);
+        });
+
+        // Add build in extensions
+        $this->twig->addExtension(new Twig\Extension($this));
+        $this->registerTwigExtensions();
+
+        // Fire booted event
+        Event::fire('builder.booted', [$this]);
+    }
+
+    /**
+     * Register custom twig extensions.
+     */
+    private function registerTwigExtensions()
+    {
+        foreach ($this->app->getSetting('twig_extensions', []) as $extension) {
+            $this->twig->addExtension(new $extension($this));
+        }
+    }
+
+    /**
+     * Return Twig Environment.
+     *
+     * @return Twig_Environment
+     */
+    public function getTwigEnvironment()
+    {
+        return $this->twig;
+    }
+
+    /**
+     * Return site.
+     *
+     * @return Site
+     */
+    public function getSite()
+    {
+        return $this->site;
     }
 
     /**
@@ -161,18 +203,18 @@ class Builder
      */
     public function build()
     {
-        $this->writeln("\n<comment>Adding root pages</comment>");
+        $this->app->writeln("\n<comment>Adding root pages</comment>");
         $this->addPages('\\Skosh\\Content\\Page');
 
-        $this->writeln("\n<comment>Adding posts</comment>");
+        $this->app->writeln("\n<comment>Adding posts</comment>");
         $this->addPages('\\Skosh\\Content\\Post', 'path', '_posts');
 
-        $this->writeln("\n<comment>Adding docs</comment>");
+        $this->app->writeln("\n<comment>Adding docs</comment>");
         $this->addPages('\\Skosh\\Content\\Doc', 'path', '_doc');
 
         $this->sortPosts();
 
-        $this->writeln("\n<comment>Rendering content</comment>");
+        $this->app->writeln("\n<comment>Rendering content</comment>");
 
         foreach ($this->site->pages as $content) {
             $this->renderContent($content);
@@ -188,7 +230,7 @@ class Builder
     private function renderContent(Content $content)
     {
         $tpl = $content->has('template') ? " <comment>($content->template)</comment>" : "";
-        $this->writeln("Rendering: <info>{$content->target}</info>{$tpl}");
+        $this->app->writeln("Rendering: <info>{$content->target}</info>{$tpl}");
 
         // Only template files are run through Twig (template can be "none")
         if ($content->has('template'))
@@ -323,14 +365,14 @@ class Builder
 
                     $filesystem->copy($source, $target);
 
-                    $this->writeln("Copied: <info>$path</info>");
+                    $this->app->writeln("Copied: <info>$path</info>");
                 }
             }
 
             // Copy Single File
             else {
                 $filesystem->copy($fileInfo->getRealPath(), $this->target . DIRECTORY_SEPARATOR . $location);
-                $this->writeln("Copied: <info>$location</info>");
+                $this->app->writeln("Copied: <info>$location</info>");
             }
         }
     }
@@ -372,7 +414,7 @@ class Builder
 
         foreach ($finder as $file) {
             $page = new $class($file, $this);
-            $this->writeln("Adding: <info>{$page->sourcePath}/{$page->filename}</info>");
+            $this->app->writeln("Adding: <info>{$page->sourcePath}/{$page->filename}</info>");
             $this->site->addContent($page);
         }
     }
@@ -385,7 +427,7 @@ class Builder
      */
     private function sortPosts()
     {
-        $this->writeln("\n<comment>Sorting</comment>");
+        $this->app->writeln("\n<comment>Sorting</comment>");
 
         $cmpFn = function (Content $one, Content $other)
         {
@@ -423,7 +465,7 @@ class Builder
             }
         }
 
-        $this->writeln("Done!");
+        $this->app->writeln("Done!");
     }
 
     /**
@@ -514,15 +556,4 @@ class Builder
         }
     }
 
-    /**
-     * Writes to console
-     *
-     * @return void
-     */
-    private function writeln($msg)
-    {
-        if ($this->output->isVerbose()) {
-            $this->output->writeln($msg);
-        }
-    }
 }
