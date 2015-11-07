@@ -174,7 +174,16 @@ class Builder
         // Get URL root
         $root = $this->app->getSetting('url');
 
-        return trim($root, '/') . '/' . trim($url, '/');
+        $url = trim($root, '/') . '/' . trim($url, '/');
+
+        // Force trailing slash
+        if ($this->app->getSetting('url_trailing_slash', false)
+            && ! strrchr(basename($url), '.')
+        ) {
+            $url = "{$url}/";
+        }
+
+        return $url;
     }
 
     /**
