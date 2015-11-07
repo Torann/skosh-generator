@@ -5,10 +5,8 @@ namespace Skosh;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Filesystem\Filesystem;
 
-use Twig_Extension;
 use Twig_Environment;
 use Twig_Loader_Chain;
-use Twig_Extension_Debug;
 use Twig_Loader_Filesystem;
 
 use Skosh\Content\Doc;
@@ -221,13 +219,20 @@ class Builder
         $this->app->writeln("\n<comment>Adding docs</comment>");
         $this->addPages('\\Skosh\\Content\\Doc', 'path', '_doc');
 
+        // Sort pages
         $this->sortPosts();
+
+        // Fire event
+        Event::fire('pages.sorted', [$this]);
 
         $this->app->writeln("\n<comment>Rendering content</comment>");
 
         foreach ($this->site->pages as $content) {
             $this->renderContent($content);
         }
+
+        // Fire event
+        Event::fire('pages.rendered', [$this]);
     }
 
     /**
@@ -351,6 +356,11 @@ class Builder
         // Initialize file system
         $filesystem = new Filesystem();
 
+        // Fire event
+        if ($response = Event::fire('copy.before', [$this, $to_copy])) {
+            $to_copy = $response[0];
+        }
+
         // Copy
         foreach ($to_copy as $location)
         {
@@ -403,6 +413,9 @@ class Builder
         foreach ($files as $file) {
             $filesystem->remove("$this->target/$file");
         }
+
+        // Fire event
+        Event::fire('target.cleaned', [$this]);
     }
 
     /**
@@ -560,9 +573,11 @@ class Builder
                 'parent' => $this->getParent($content->parentId)
             ]);
 
+            // Fire event
+            Event::fire('paginate.before', [$this, &$target, &$html]);
+
             // Save Content
             $this->savePage($target, $html);
         }
     }
-
 }
