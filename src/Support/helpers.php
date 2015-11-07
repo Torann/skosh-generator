@@ -62,17 +62,6 @@ function starts_with($haystack, $needles)
 }
 
 /**
- * Ensures the proper slashes are used.
- *
- * @param  string $string
- * @return string
- */
-function url($string)
-{
-    return str_replace([DIRECTORY_SEPARATOR, '//'], ['/', '/'], $string);
-}
-
-/**
  * Remove line breaks and double spaces
  *
  * @param  string $string
