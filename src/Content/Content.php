@@ -107,7 +107,7 @@ abstract class Content
         list($content, $meta) = $this->splitContentMeta($data);
 
         // Parse meta
-        $meta = Yaml::parse($meta);
+        $meta = Yaml::parse($meta) ?: [];
 
         // Parse content
         switch ($file->getExtension()) {
@@ -126,6 +126,13 @@ abstract class Content
         // Set content
         $this->content = $content;
         $this->meta = $meta;
+
+        // Ensure local URLs are absolute
+        foreach($this->meta as $key=>$value) {
+            if (preg_match('/\burl\b|.*_url\b/', $key)) {
+                $this->meta[$key] = $this->builder->getUrl($value);
+            }
+        }
 
         // Set target
         $this->setTarget($file);
