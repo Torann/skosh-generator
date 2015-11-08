@@ -37,13 +37,6 @@ class Builder
     public $app;
 
     /**
-     * All of the registered service providers.
-     *
-     * @var array
-     */
-    private $serviceProviders = [];
-
-    /**
      * Site objects holds the compiled site data.
      *
      * @var \Skosh\Site
@@ -434,8 +427,16 @@ class Builder
             ->$path($filter)
             ->name('/\\.(md|textile|xml|twig)$/');
 
-        foreach ($finder as $file) {
+        foreach ($finder as $file)
+        {
             $page = new $class($file, $this);
+
+            // Skip drafts in production
+            if ($this->app->isProduction() && $page->status === 'draft') {
+                $this->app->writeln("Skipping draft: <info>{$page->sourcePath}/{$page->filename}</info>");
+                continue;
+            }
+
             $this->app->writeln("Adding: <info>{$page->sourcePath}/{$page->filename}</info>");
             $this->site->addContent($page);
         }

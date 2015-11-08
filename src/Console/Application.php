@@ -122,6 +122,16 @@ class Application extends BaseApplication
     }
 
     /**
+     * Is a production environment.
+     *
+     * @return bool
+     */
+    public function isProduction()
+    {
+        return $this->environment === 'production';
+    }
+
+    /**
      * Return source directory for site.
      *
      * @return string
