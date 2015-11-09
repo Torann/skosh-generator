@@ -4,6 +4,7 @@ namespace Skosh\Console;
 
 use Skosh\Event;
 use Skosh\Config;
+use Carbon\Carbon;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Application as BaseApplication;
@@ -70,6 +71,9 @@ class Application extends BaseApplication
 
         // Set local timezone
         date_default_timezone_set($this->getSetting('timezone', 'America/New_York'));
+
+        // Set default date format
+        Carbon::setToStringFormat($this->config->get('date_format', 'Y-m-d H:i:s'));
 
         // Register events
         $this->registerEvents();

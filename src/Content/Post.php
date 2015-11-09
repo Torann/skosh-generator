@@ -2,6 +2,7 @@
 
 namespace Skosh\Content;
 
+use Carbon\Carbon;
 use Skosh\Builder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -28,10 +29,10 @@ class Post extends Content
 
         // Set date
         if ($this->has('date')) {
-            $this->date = strtotime($this->get('date'));
+            $this->date = new Carbon($this->get('date'));
         }
         else {
-            $this->date = $file->getMTime();
+            $this->date = new Carbon($file->getMTime());
         }
 
         // Set excerpt
