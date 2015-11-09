@@ -29,7 +29,7 @@ class Post extends Content
 
         // Set date
         if ($this->has('date')) {
-            $this->date = new Carbon($this->get('date'));
+            $this->date = new Carbon($this->get('date'), date_default_timezone_get());
         }
         else {
             $this->date = new Carbon($file->getMTime());
