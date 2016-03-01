@@ -32,7 +32,7 @@ class Post extends Content
             $this->date = new Carbon($this->get('date'), date_default_timezone_get());
         }
         else {
-            $this->date = new Carbon($file->getMTime());
+            $this->date = Carbon::createFromTimestamp($file->getMTime());
         }
 
         // Set excerpt
