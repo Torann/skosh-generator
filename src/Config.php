@@ -2,7 +2,7 @@
 
 namespace Skosh;
 
-use Symfony\Component\Yaml\Parser;
+use Symfony\Component\Yaml\Yaml;
 
 class Config
 {
@@ -16,8 +16,10 @@ class Config
     /**
      * Initializer.
      *
-     * @param string $env  Environment
-     * @param string $file Config filename
+     * @param string $env
+     * @param string $file
+     *
+     * @throws \Exception
      */
     public function __construct($env = 'local', $file = 'config')
     {
@@ -29,6 +31,9 @@ class Config
     /**
      * Get config value
      *
+     * @param      $key
+     * @param null $default
+     *
      * @return mixed
      */
     public function get($key, $default = null)
@@ -39,7 +44,8 @@ class Config
     /**
      * Save array to file
      *
-     * @param  string $path
+     * @param string $path
+     *
      * @return bool
      */
     public function export($path)
@@ -50,8 +56,9 @@ class Config
     /**
      * Loads and parses the config file
      *
-     * @param string $env  Environment
+     * @param string $env Environment
      * @param string $file Config filename
+     *
      * @return void
      * @throws \Exception
      */
@@ -63,33 +70,21 @@ class Config
         $configPath = "{$path}/{$file}.yml";
         $envConfigPath = "{$path}/{$file}_{$env}.yml";
 
-        if (!file_exists($configPath)) {
+        if (file_exists($configPath) === false) {
             throw new \Exception("Config file not found at \"{$configPath}\".");
         }
 
-        $data = file_get_contents($configPath);
-
-        if ($data === false) {
-            throw new \Exception("Unable to load configuration from: {$configPath}");
-        }
-
-        $yaml = new Parser();
-
         // Load config
-        $config = $yaml->parse($data);
+        $config = Yaml::parse(file_get_contents($configPath));
         $this->config = $config ? $config : [];
 
         // Load environment specific config
         if (file_exists($envConfigPath)) {
-            $data = file_get_contents($envConfigPath);
+            $config = Yaml::parse(file_get_contents($envConfigPath));
+            $config = $config ? $config : [];
 
-            if ($data) {
-                $config = $yaml->parse($data);
-                $config = $config ? $config : [];
-
-                // Merge config values
-                $this->config = array_merge($this->config, $config);
-            }
+            // Merge config values
+            $this->config = array_merge($this->config, $config);
         }
     }
 }

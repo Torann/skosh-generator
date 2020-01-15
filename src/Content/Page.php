@@ -7,6 +7,12 @@ use Symfony\Component\Finder\SplFileInfo;
 
 class Page extends Content
 {
+    /**
+     * Page constructor.
+     *
+     * @param SplFileInfo $file
+     * @param Builder     $builder
+     */
     public function __construct(SplFileInfo $file, Builder $builder)
     {
         parent::__construct($file, $builder);
@@ -15,10 +21,15 @@ class Page extends Content
         $this->date = $file->getMTime();
     }
 
+    /**
+     * @param string $name
+     * @param null   $default
+     *
+     * @return string
+     */
     public function image($name, $default = null)
     {
-        if ($this->has('images'))
-        {
+        if ($this->has('images')) {
             $path = rtrim($this->get('images'), DIRECTORY_SEPARATOR);
             $image = join(DIRECTORY_SEPARATOR, [$path, $name]);
 

@@ -16,6 +16,14 @@ class Post extends Content
     public $tag_class;
     public $author = 'unknown';
 
+    /**
+     * Post constructor.
+     *
+     * @param SplFileInfo $file
+     * @param Builder     $builder
+     *
+     * @throws \Exception
+     */
     public function __construct(SplFileInfo $file, Builder $builder)
     {
         parent::__construct($file, $builder);
@@ -47,8 +55,7 @@ class Post extends Content
         $this->author = $this->get('author', $this->author);
 
         // Set Images
-        if ($this->has('image'))
-        {
+        if ($this->has('image')) {
             $fileinfo = pathinfo($this->get('image'));
 
             $template = $this->builder->getUrl("{$fileinfo['dirname']}/{$fileinfo['filename']}-%SIZE%.{$fileinfo['extension']}");
@@ -68,7 +75,8 @@ class Post extends Content
      * Get excerpt from between excerpt tags or
      * first paragraph.
      *
-     * @param  string $content
+     * @param string $content
+     *
      * @return string
      */
     protected function getExcerpt($content)
@@ -112,8 +120,8 @@ class Post extends Content
      */
     protected function getTagClassNames()
     {
-        $tags = array_map(function($tag) {
-            return slugify($tag);
+        $tags = array_map(function ($tag) {
+            return str_slug($tag);
         }, explode('|', $this->get('tags')));
 
         return implode(' ', $tags);

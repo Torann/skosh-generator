@@ -38,6 +38,7 @@ abstract class AbstractExtension extends \Twig_Extension
      *
      * @param $page
      * @param $pattern
+     *
      * @return bool
      */
     public function isCurrent($page, $pattern)
@@ -55,6 +56,6 @@ abstract class AbstractExtension extends \Twig_Extension
      */
     public function getName()
     {
-        return slugify(get_class($this));
+        return str_slug(get_class($this));
     }
 }

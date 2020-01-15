@@ -61,6 +61,8 @@ class Builder
      * Initializer.
      *
      * @param Application $app
+     *
+     * @throws \Exception
      */
     public function __construct(Application $app)
     {
@@ -76,12 +78,12 @@ class Builder
 
         // Check paths
         $fs = new Filesystem();
-        if (!$fs->exists($this->source)) {
+        if ($fs->exists($this->source) === false) {
             throw new \Exception("Source folder not found at \"{$this->source}\".");
         }
 
         // Ensure we have a target
-        if (!$fs->exists($this->target)) {
+        if ($fs->exists($this->target) === false) {
             $fs->mkdir($this->target);
         }
 
@@ -153,12 +155,13 @@ class Builder
     /**
      * Get the URL for the given page.
      *
-     * @param  string $url
+     * @param string $url
+     *
      * @return string
      */
     public function getUrl($url)
     {
-        if (!$url || starts_with($url, ['#', '//', 'mailto:', 'tel:', 'http'])) {
+        if (empty($url) || starts_with($url, ['#', '//', 'mailto:', 'tel:', 'http'])) {
             return $url;
         }
 
@@ -180,7 +183,8 @@ class Builder
     /**
      * Check asset manifest for a file
      *
-     * @param  string $path
+     * @param string $path
+     *
      * @return string
      */
     public function getAsset($path)
@@ -200,6 +204,10 @@ class Builder
      * Renders the site
      *
      * @return void
+     * @throws \Exception
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Twig\Error\LoaderError
      */
     public function build()
     {
@@ -231,8 +239,12 @@ class Builder
     /**
      * Renders content
      *
-     * @param  Content $content
-     * @return mixed
+     * @param Content $content
+     *
+     * @return bool
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Twig\Error\LoaderError
      */
     private function renderContent(Content $content)
     {
@@ -240,8 +252,7 @@ class Builder
         $this->app->writeln("Rendering: <info>{$content->target}</info>{$tpl}");
 
         // Only template files are run through Twig (template can be "none")
-        if ($content->has('template'))
-        {
+        if ($content->has('template')) {
             if ($content->paginate) {
                 return $this->paginate($content);
             }
@@ -260,13 +271,17 @@ class Builder
 
         // Save Content
         $this->savePage($content->target, $html);
+
+        return true;
     }
 
     /**
      * Save page to target file.
      *
-     * @param  string $html
-     * @param  string $target
+     * @param string $html
+     * @param string $target
+     *
+     * @return void
      */
     public function savePage($target, $html)
     {
@@ -277,7 +292,8 @@ class Builder
     /**
      * Get parent content.
      *
-     * @param  string $parentId
+     * @param string $parentId
+     *
      * @return array
      */
     public function getParent($parentId)
@@ -292,7 +308,8 @@ class Builder
     /**
      * Get posts for given content.
      *
-     * @param  Content $content
+     * @param Content $content
+     *
      * @return array
      */
     public function getPosts(Content $content)
@@ -313,6 +330,7 @@ class Builder
      * Create a server config file
      *
      * @return void
+     * @throws \Exception
      */
     public function createServerConfig()
     {
@@ -355,21 +373,18 @@ class Builder
         }
 
         // Copy
-        foreach ($to_copy as $location)
-        {
+        foreach ($to_copy as $location) {
             $fileInfo = new \SplFileInfo($this->source . DIRECTORY_SEPARATOR . $location);
 
             // Copy a complete directory
-            if ($fileInfo->isDir())
-            {
+            if ($fileInfo->isDir()) {
                 $finder = new Finder();
                 $finder->files()
                     ->exclude($exclude)
                     ->notName($pattern)
                     ->in($this->source . DIRECTORY_SEPARATOR . $location);
 
-                foreach ($finder as $file)
-                {
+                foreach ($finder as $file) {
                     $path = $location . DIRECTORY_SEPARATOR . $file->getRelativePathname();
                     echo "$path\n";
                     $source = $file->getRealPath();
@@ -379,9 +394,7 @@ class Builder
 
                     $this->app->writeln("Copied: <info>$path</info>");
                 }
-            }
-
-            // Copy Single File
+            } // Copy Single File
             else {
                 $filesystem->copy($fileInfo->getRealPath(), $this->target . DIRECTORY_SEPARATOR . $location);
                 $this->app->writeln("Copied: <info>$location</info>");
@@ -414,21 +427,22 @@ class Builder
     /**
      * Add pages for rendering
      *
-     * @param  string $class
-     * @param  string $path
-     * @param  string $filter
+     * @param string $class
+     * @param string $path
+     * @param string $filter
+     *
      * @return void
+     * @throws \Exception
      */
     private function addPages($class, $path = 'notPath', $filter = '_')
     {
-        $finder = new Finder();
-        $finder->files()
+        $finder = (new Finder())
+            ->files()
             ->in($this->source)
             ->$path($filter)
             ->name('/\\.(md|textile|xml|twig)$/');
 
-        foreach ($finder as $file)
-        {
+        foreach ($finder as $file) {
             $page = new $class($file, $this);
 
             // Skip drafts in production
@@ -452,11 +466,9 @@ class Builder
     {
         $this->app->writeln("\n<comment>Sorting</comment>");
 
-        $cmpFn = function (Content $one, Content $other)
-        {
+        $cmpFn = function (Content $one, Content $other) {
             // Sort by chapters
-            if ($one instanceof Doc && $other instanceof Doc)
-            {
+            if ($one instanceof Doc && $other instanceof Doc) {
                 if ($one->chapter == $other->chapter) {
                     return 0;
                 }
@@ -472,8 +484,7 @@ class Builder
             return ($one->date > $other->date) ? -1 : 1;
         };
 
-        foreach ($this->site->categories as $cat => &$posts)
-        {
+        foreach ($this->site->categories as $cat => &$posts) {
             // Sort posts
             usort($posts, $cmpFn);
 
@@ -494,8 +505,12 @@ class Builder
     /**
      * Generate pagination
      *
-     * @param  Content $content
-     * @return void
+     * @param Content $content
+     *
+     * @return bool
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Twig\Error\LoaderError
      */
     private function paginate(Content $content)
     {
@@ -506,8 +521,7 @@ class Builder
         $slice = [];
         $totalItems = 0;
 
-        foreach ($posts as $k => $v)
-        {
+        foreach ($posts as $k => $v) {
             if (count($slice) === $maxPerPage) {
                 $slices[] = $slice;
                 $slice = [];
@@ -531,8 +545,7 @@ class Builder
         ];
 
         $pageNumber = 0;
-        foreach ($slices as $slice)
-        {
+        foreach ($slices as $slice) {
             $pageNumber++;
 
             // Set page target filename
@@ -541,12 +554,10 @@ class Builder
             // Previous page is index
             if ($pageNumber === 2) {
                 $pagination['prev'] = $this->getUrl($pageRoot);
-            }
-            // Set previous page
-            else if ($pageNumber > 1) {
+            } // Set previous page
+            elseif ($pageNumber > 1) {
                 $pagination['prev'] = $this->getUrl("{$pageRoot}/page/" . ($pageNumber - 1));
-            }
-            // No previous page
+            } // No previous page
             else {
                 $pagination['prev'] = null;
             }
@@ -554,8 +565,7 @@ class Builder
             // Set next page
             if ($pageNumber + 1 <= $pagination['total_pages']) {
                 $pagination['next'] = $this->getUrl("{$pageRoot}/page/" . ($pageNumber + 1));
-            }
-            // No next page
+            } // No next page
             else {
                 $pagination['next'] = null;
             }
@@ -580,5 +590,7 @@ class Builder
             // Save Content
             $this->savePage($target, $html);
         }
+
+        return true;
     }
 }

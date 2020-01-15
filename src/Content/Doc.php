@@ -11,6 +11,12 @@ class Doc extends Content
     public $chapter;
     public $date;
 
+    /**
+     * Doc constructor.
+     *
+     * @param SplFileInfo $file
+     * @param Builder     $builder
+     */
     public function __construct(SplFileInfo $file, Builder $builder)
     {
         parent::__construct($file, $builder);

@@ -69,8 +69,9 @@ abstract class Content
     /**
      * Get the specified metadata value.
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function get($key, $default = null)
@@ -81,7 +82,8 @@ abstract class Content
     /**
      * Determine if the given metadata value exists.
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return bool
      */
     public function has($key)
@@ -92,7 +94,8 @@ abstract class Content
     /**
      * Load and parse content from file.
      *
-     * @param  SplFileInfo $file
+     * @param SplFileInfo $file
+     *
      * @return void
      */
     protected function load(SplFileInfo $file)
@@ -128,7 +131,7 @@ abstract class Content
         $this->meta = $meta;
 
         // Ensure local URLs are absolute
-        foreach($this->meta as $key=>$value) {
+        foreach ($this->meta as $key => $value) {
             if (preg_match('/\burl\b|.*_url\b/', $key)) {
                 $this->meta[$key] = $this->builder->getUrl($value);
             }
@@ -172,7 +175,8 @@ abstract class Content
     /**
      * Parse metadata and content
      *
-     * @param  string $data
+     * @param string $data
+     *
      * @return array
      */
     protected function splitContentMeta($data)
@@ -192,8 +196,7 @@ abstract class Content
         // Separate the meta-data from the content
         $data = trim($data);
 
-        if (
-            (substr($data, 0, 3) === '---') &&
+        if ((substr($data, 0, 3) === '---') &&
             (preg_match($pattern, $data, $matches, PREG_OFFSET_CAPTURE, 3))
         ) {
             $pos = $matches[0][1];
@@ -204,7 +207,7 @@ abstract class Content
         }
         else {
             $content = $data;
-            $meta = null;
+            $meta = '';
         }
 
         return [$content, $meta];
@@ -226,7 +229,8 @@ abstract class Content
     /**
      * Determine the target path.
      *
-     * @param  SplFileInfo $file
+     * @param SplFileInfo $file
+     *
      * @return string
      */
     protected function setTarget(SplFileInfo $file)
@@ -235,7 +239,7 @@ abstract class Content
         $ext = $file->getExtension();
 
         // Twig templates are HTML
-        if (!$this->has('template') || $this->get('template') === 'none') {
+        if ($this->has('template') === false || $this->get('template') === 'none') {
             $targetExt = $ext;
         }
         else {
@@ -276,7 +280,8 @@ abstract class Content
      * Magic method to determine if the
      * given metadata value exists.
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return mixed
      */
     public function __isset($key)
@@ -288,7 +293,8 @@ abstract class Content
      * Magic method to get the specified
      * metadata value.
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return mixed
      */
     public function __get($key)

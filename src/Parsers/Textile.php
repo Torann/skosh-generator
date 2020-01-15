@@ -9,13 +9,14 @@ class Textile
     /**
      * Parse Content
      *
-     * @param  string $content
+     * @param string $content
+     *
      * @return string
      */
     public static function parse($content)
     {
         $parser = new Parser();
 
-        return $parser->textileThis($content);
+        return $parser->parse($content);
     }
 }

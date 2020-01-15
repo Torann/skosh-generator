@@ -28,8 +28,9 @@ class SocialShare
     /**
      * Generate social network link.
      *
-     * @param  string  $network
-     * @param  Content $page
+     * @param string  $network
+     * @param Content $page
+     *
      * @return string
      */
     public static function generate($network, Content $page)
@@ -54,8 +55,9 @@ class SocialShare
     /**
      * Truncate a string to a set width.
      *
-     * @param  string $string
-     * @param  int    $width
+     * @param string $string
+     * @param int    $width
+     *
      * @return string
      */
     public static function truncate($string, $width)
