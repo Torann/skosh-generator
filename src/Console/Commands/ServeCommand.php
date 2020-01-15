@@ -1,6 +1,6 @@
 <?php
 
-namespace Skosh\Console;
+namespace Skosh\Console\Commands;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ServeCommand extends Command
 {
+    /**
+     * {@inheritDoc}
+     */
     protected function configure()
     {
         $this
@@ -20,6 +23,9 @@ class ServeCommand extends Command
             ->addOption('host', 'H', InputOption::VALUE_OPTIONAL, 'Host to listen on.', 'localhost');
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Get application instance
@@ -36,8 +42,7 @@ class ServeCommand extends Command
         $host = $input->getOption('host');
 
         // Was the build command ran?
-        if (!file_exists($target . DIRECTORY_SEPARATOR . 'index.html'))
-        {
+        if (file_exists($target . DIRECTORY_SEPARATOR . 'index.html') === false) {
             // Create production build command
             $command = $app->find('build');
 
@@ -52,12 +57,11 @@ class ServeCommand extends Command
 
         $fp = popen("gulp serve --target={$target} --port={$port} --host={$host}", "r");
 
-        while (!feof($fp)) {
+        while (! feof($fp)) {
             $result = preg_replace('/\033\[[\d;]+m/', '', fgets($fp, 4096));
             $output->write($result);
         }
 
         pclose($fp);
     }
-
 }

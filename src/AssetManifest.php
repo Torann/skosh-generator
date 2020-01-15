@@ -47,7 +47,8 @@ class AssetManifest
     /**
      * Get config value
      *
-     * @param  string $key
+     * @param string $key
+     *
      * @return mixed
      */
     public function get($key)

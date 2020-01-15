@@ -1,6 +1,6 @@
 <?php
 
-namespace Skosh\Console;
+namespace Skosh\Console\Commands;
 
 use Skosh\Config;
 use Symfony\Component\Console\Command\Command;
@@ -29,6 +29,9 @@ class PublishCommand extends Command
         'ftp' => 'lftp'
     ];
 
+    /**
+     * {@inheritDoc}
+     */
     protected function configure()
     {
         $this
@@ -42,6 +45,9 @@ class PublishCommand extends Command
             ->addOption('env', 'e', InputOption::VALUE_OPTIONAL, 'Which environment to publish to.', 'production');
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Get application instance
@@ -73,8 +79,9 @@ class PublishCommand extends Command
         $output->writeln("<comment>Publishing to server</comment>\n");
 
         // Call method
-        $method = "publish_$server";
-        $this->$method($output, $app->getTarget());
+        $this->{'publish' . str_studly($server)}(
+            $output, $app->getTarget()
+        );
 
         $output->writeln("<comment>Done!</comment>\n");
     }
@@ -83,17 +90,17 @@ class PublishCommand extends Command
      * Check existence of remote server.
      *
      * @param string $server
+     *
      * @return bool
      * @throws \Exception
      */
     protected function validateServer($server)
     {
-        if (in_array($server, array_keys($this->servers)))
-        {
+        if (in_array($server, array_keys($this->servers))) {
             // Get server options
-            $options = $this->config->get($server);
+            $options = $this->config->get($server, null);
 
-            if (!$options || $options['host'] === 'yoursite') {
+            if ($options === null || $options['host'] === 'yoursite') {
                 throw new \Exception("Remote server \"{$server}\" not setup in remote.yml.");
             }
 
@@ -110,12 +117,13 @@ class PublishCommand extends Command
     /**
      * Publish using SSH.
      *
-     * @param  OutputInterface $output
-     * @param  string          $target
+     * @param OutputInterface $output
+     * @param string          $target
+     *
      * @return bool
      * @throws \Exception
      */
-    protected function publish_ssh(OutputInterface $output, $target)
+    protected function publishSsh(OutputInterface $output, $target)
     {
         // Get FTP config
         $config = $this->config->get('ssh');
@@ -132,12 +140,13 @@ class PublishCommand extends Command
     /**
      * Publish using FTP.
      *
-     * @param  OutputInterface $output
-     * @param  string          $target
+     * @param OutputInterface $output
+     * @param string          $target
+     *
      * @return bool
      * @throws \Exception
      */
-    protected function publish_ftp(OutputInterface $output, $target)
+    protected function publishFtp(OutputInterface $output, $target)
     {
         // Get FTP config
         $config = $this->config->get('ftp');

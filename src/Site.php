@@ -63,7 +63,8 @@ class Site
     /**
      * Add content to site.
      *
-     * @param  Page|Content $content
+     * @param Page|Content $content
+     *
      * @throws Exception
      */
     public function addContent($content)
@@ -84,7 +85,7 @@ class Site
     /**
      * Add given page to site.
      *
-     * @param  Content $page
+     * @param Content $page
      */
     public function addPage(Content $page)
     {
@@ -101,7 +102,7 @@ class Site
         $this->pages[$child->id] = $child;
 
         // Group by category
-        if (!isset($this->categories[$child->category])) {
+        if (isset($this->categories[$child->category]) === false) {
             $this->categories[$child->category] = [];
         }
 

@@ -74,7 +74,7 @@ class Extension extends AbstractExtension
             // Get URL
             $url = $parent->get('edit_url');
 
-            if (!$url) {
+            if (empty($url)) {
                 return;
             }
 

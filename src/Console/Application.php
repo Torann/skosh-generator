@@ -11,7 +11,7 @@ use Symfony\Component\Console\Application as BaseApplication;
 
 class Application extends BaseApplication
 {
-    const VERSION = '0.1';
+    const VERSION = '0.3';
 
     /**
      * Site config.
@@ -45,10 +45,11 @@ class Application extends BaseApplication
     /**
      * Runs the current application.
      *
-     * @param InputInterface  $input  An Input instance
+     * @param InputInterface  $input An Input instance
      * @param OutputInterface $output An Output instance
      *
      * @return int 0 if everything went fine, or an error code
+     * @throws \Exception
      */
     public function doRun(InputInterface $input, OutputInterface $output)
     {
@@ -106,8 +107,9 @@ class Application extends BaseApplication
     /**
      * Get value from site config file.
      *
-     * @param  string $key
-     * @param  mixed  $default
+     * @param string $key
+     * @param mixed  $default
+     *
      * @return mixed
      */
     public function getSetting($key, $default = null)
@@ -142,7 +144,7 @@ class Application extends BaseApplication
      */
     public function getSource()
     {
-        return realpath(BASE_PATH.'/source');
+        return realpath(BASE_PATH . '/source');
     }
 
     /**
@@ -164,10 +166,10 @@ class Application extends BaseApplication
     {
         $defaultCommands = parent::getDefaultCommands();
 
-        $defaultCommands[] = new BuildCommand();
-        $defaultCommands[] = new ServeCommand();
-        $defaultCommands[] = new PublishCommand();
-        $defaultCommands[] = new WatchCommand();
+        $defaultCommands[] = new Commands\BuildCommand();
+        $defaultCommands[] = new Commands\ServeCommand();
+        $defaultCommands[] = new Commands\PublishCommand();
+        $defaultCommands[] = new Commands\WatchCommand();
 
         return $defaultCommands;
     }
@@ -175,7 +177,8 @@ class Application extends BaseApplication
     /**
      * Writes to console
      *
-     * @param  string|array $messages
+     * @param string|array $messages
+     *
      * @return void
      */
     public function writeln($messages)

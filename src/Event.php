@@ -28,9 +28,10 @@ class Event
      * of times the event is fired, call the method with a third
      * argument of TRUE.
      *
-     * @param  string $name     The name of the event.
-     * @param  mixed  $callback The callback function.
-     * @param  bool   $once     Only fire the callback once.
+     * @param string $name The name of the event.
+     * @param mixed  $callback The callback function.
+     * @param bool   $once Only fire the callback once.
+     *
      * @return void
      */
     public static function bind($name, $callback, $once = false)
@@ -44,15 +45,15 @@ class Event
      * Identical to the append method, except the event handler is
      * added to the start of the queue.
      *
-     * @param  string $name     The name of the event.
-     * @param  mixed  $callback The callback function.
-     * @param  bool   $once     Only fire the callback once.
+     * @param string $name The name of the event.
+     * @param mixed  $callback The callback function.
+     * @param bool   $once Only fire the callback once.
+     *
      * @return void
      */
     public static function insert($name, $callback, $once = false)
     {
-        if (static::bound($name))
-        {
+        if (static::bound($name)) {
             array_unshift(
                 static::$events[$name],
                 [$once ? 'once' : 'always' => $callback]
@@ -71,20 +72,20 @@ class Event
      *
      * Returns NULL if the event has no handlers.
      *
-     * @param  string $name The name of the event.
-     * @param  array  $data The data passed to the event handlers.
-     * @param  bool   $stop Return after the first non-empty response.
+     * @param string $name The name of the event.
+     * @param array  $data The data passed to the event handlers.
+     * @param bool   $stop Return after the first non-empty response.
+     *
      * @return mixed
      */
     public static function fire($name, $data = [], $stop = false)
     {
-        if (static::bound($name))
-        {
+        if (static::bound($name)) {
             static::$fired[$name] = true;
 
-            foreach (static::$events[$name] as $key => $value)
-            {
-                list($type, $callback) = each($value);
+            foreach (static::$events[$name] as $key => $value) {
+                $type = key($value);
+                $callback = current($value);
 
                 // Call back is a class
                 if (is_string($callback)) {
@@ -98,7 +99,7 @@ class Event
                     unset(static::$events[$name][$key]);
                 }
 
-                if ($stop && !empty($response)) {
+                if ($stop && empty($response) === false) {
                     return $responses;
                 }
             }
@@ -110,7 +111,8 @@ class Event
     /**
      * Check if an event has fired.
      *
-     * @param  string $name The name of the event.
+     * @param string $name The name of the event.
+     *
      * @return bool
      */
     public static function fired($name)
@@ -125,7 +127,8 @@ class Event
      * name of the event to the method. To remove all event handlers,
      * call the method without any arguments.
      *
-     * @param  string $name The name of the event.
+     * @param string $name The name of the event.
+     *
      * @return void
      */
     public static function unbind($name = null)
@@ -139,7 +142,8 @@ class Event
      * If called without an argument, the 'fired' flag for all events
      * will be cleared.
      *
-     * @param  string $name The name of the event.
+     * @param string $name The name of the event.
+     *
      * @return void
      */
     public static function reset($name = null)
@@ -150,7 +154,8 @@ class Event
     /**
      * Check if any callback functions are bound to an event.
      *
-     * @param  string $name The name of the event.
+     * @param string $name The name of the event.
+     *
      * @return bool
      */
     public static function bound($name)
@@ -161,8 +166,9 @@ class Event
     /**
      * Remove an element from an array, or clear an entire array.
      *
-     * @param  array  $array The array.
-     * @param  string $name  The name of the element to clear.
+     * @param array  $array The array.
+     * @param string $name The name of the element to clear.
+     *
      * @return void
      */
     protected static function clear(&$array, $name)

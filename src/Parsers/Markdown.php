@@ -9,7 +9,8 @@ class Markdown
     /**
      * Parse Content
      *
-     * @param  string $content
+     * @param string $content
+     *
      * @return string
      */
     public static function parse($content)

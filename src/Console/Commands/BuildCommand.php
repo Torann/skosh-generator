@@ -1,6 +1,6 @@
 <?php
 
-namespace Skosh\Console;
+namespace Skosh\Console\Commands;
 
 use Skosh\Event;
 use Skosh\Builder;
@@ -18,6 +18,9 @@ class BuildCommand extends Command
      */
     private $target;
 
+    /**
+     * {@inheritDoc}
+     */
     protected function configure()
     {
         $this
@@ -30,6 +33,9 @@ class BuildCommand extends Command
                 'Which part of the site to skip [config, static, pages, or assets]');
     }
 
+    /**
+     * {@inheritDoc}
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // Get application instance
