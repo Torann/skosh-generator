@@ -22,7 +22,7 @@ class SkoshParsedown extends ParsedownExtra
 
     protected function escapeBlockCodeText($Block)
     {
-        $Block['element']['text']['text'] = str_replace(['{', '}'], ['&lbrace;', '&rbrace;'], $Block['element']['text']['text']);
+        $Block['element']['text']['text'] = "{% verbatim %}{$Block['element']['text']['text']}{% endverbatim %}";
 
         return $Block;
     }
